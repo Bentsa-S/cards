@@ -21,9 +21,11 @@ export class DraggableItem {
         this.sprite.buttonMode = true;
         this.sprite.name = name
 
-        this.sprite.on('pointerdown', this.onDragStart.bind(this));
-        this.sprite.on('pointerup', this.onDragEnd.bind(this));
-        this.sprite.on('pointerupoutside', this.onDragEnd.bind(this));
+        this.onDragStartBind = this.onDragStart.bind(this)
+        this.onDragEndBind = this.onDragEnd.bind(this)
+        this.sprite.on('pointerdown', this.onDragStartBind);
+        this.sprite.on('pointerup', this.onDragEndBind);
+        this.sprite.on('pointerupoutside', this.onDragEndBind);
 
 
         this.addEventListeners();
@@ -85,45 +87,77 @@ export class DraggableItem {
 
     // додається зона для взаєсодіі друго ігрока
     addInteractiveZone(x, y) {
-        this.sprite.off('pointerdown', this.onDragStart.bind(this));
-        this.sprite.off('pointerup', this.onDragEnd.bind(this));
-        this.sprite.off('pointerupoutside', this.onDragEnd.bind(this));
-    
-        const zoneWidth = 100;
-        const zoneHeight = 150;
-        const newZone = new Graphics();
-        newZone.beginFill(0x00ff00, 0.3);
-        newZone.drawRect(0, 0, zoneWidth, zoneHeight);
-        newZone.endFill();
-    
-        newZone.name = 'zone';
-        this.zone = true;
-    
+        if(!this.zone){
+            this.sprite.off('pointerdown', this.onDragStartBind);
+            // this.sprite.off('pointerup', this.onDragEndBind);
+            // this.sprite.off('pointerupoutside', this.onDragEndBind);
+        
+            const zoneWidth = 100;
+            const zoneHeight = 150;
+            let index = 0
+            const newZone = new Graphics();
+            newZone.beginFill(0x00ff00, 0.3);
+            newZone.drawRect(0, 0, zoneWidth, zoneHeight);
+            newZone.endFill();
+        
+            newZone.name = 'zone';
+            this.zone = true;
+        
 
-        newZone.position.set(
-            x - zoneWidth / 2,
-            y - zoneHeight / 2
-        );
-    
-        this.app.stage.addChild(newZone);
-    
-        // Налаштовуємо взаємодію з зоною
-        newZone.interactive = true;
-        newZone.on('pointerup', () => {
-            this.app.stage.children.forEach((e) => {
-                const bounds = newZone.getBounds();
-    
-                if (
-                    e.x > bounds.x &&
-                    e.x < bounds.x + bounds.width &&
-                    e.y > bounds.y &&
-                    e.y < bounds.y + bounds.height
-                ) {
-                    gsap.to(e, { x: e.x + 20, y: e.y, duration: 0.5, rotation: .40 });
-                    gsap.to(e.scale, { x: 0.4, y: 0.4, duration: 0.5 });
-                }                    
+            newZone.position.set(
+                x - zoneWidth / 2,
+                y - zoneHeight / 2
+            );
+        
+            this.app.stage.addChild(newZone);
+        
+            // Налаштовуємо взаємодію з зоною
+            newZone.interactive = true;
+            newZone.on('pointerup', () => {
+                this.app.stage.children.forEach((e) => {
+                    const bounds = newZone.getBounds();
+        
+                    const getCardRank = (cardName) => {
+                        // Витягуємо ранг із назви картки (перші символи до масті)
+                        const rank = cardName.match(/\d+|[JQKA]/)[0]; // Визначаємо ранг (число або символ)
+                        const rankOrder = { 'J': 11, 'Q': 12, 'K': 13, 'A': 14 }; // Порядок старшинства карт
+                        return rankOrder[rank] || parseInt(rank); // Повертаємо цифрове значення рангу
+                    };
+                    
+                    const getCardSuit = (cardName) => {
+                        // Витягуємо масть із назви картки (символи після рангу)
+                        return cardName.match(/[A-Za-z]+/g)[1];
+                    };
+                    
+                    if (
+                        e.x > bounds.x &&
+                        e.x < bounds.x + bounds.width &&
+                        e.y > bounds.y &&
+                        e.y < bounds.y + bounds.height
+                    ) {
+                        const currentSuit = getCardSuit(this.sprite.name); // Масть поточної картки
+                        const currentRank = getCardRank(this.sprite.name); // Ранг поточної картки
+                        
+                        const targetSuit = getCardSuit(e.name); // Масть порівнюваної картки
+                        const targetRank = getCardRank(e.name); // Ранг порівнюваної картки
+                    
+                        if (currentSuit === targetSuit && targetRank > currentRank) {
+                            // Якщо масть однакова, а ранг картки e більший
+                            if (this.sprite != e && index < 1) {
+                                index = 1;
+                                this.app.stage.removeChild(e);
+                                this.app.stage.addChild(e);
+                    
+                                e.interactive = false;
+                    
+                                gsap.to(e, { x: x + 20, y: y, duration: 0.5, rotation: 0.4 });
+                                gsap.to(e.scale, { x: 0.4, y: 0.4, duration: 0.5 });
+                            }
+                        }
+                    }                   
+                });
             });
-        });
+        }
     }
     
     getZone(){

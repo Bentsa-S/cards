@@ -1,22 +1,26 @@
-import { Application} from 'pixi.js';
-// import { DraggableItem } from './durakc/durackCardsMove';
-// import { deckThirtySixCards } from './textures/textures';
+import { Application } from 'pixi.js';
 import { DurackGame } from './durakc/durackGame';
 import { DeckDurack } from './durakc/durakDeck';
-// import { mapDeckCards, addMapDeckCards } from './durakc/durakDeck';
-// import deckInteractive from './twentyOneGame/twentyOneGame';
+import { MovePlayers } from './durakc/movePlayers';
+import { SeelvePlayer } from './durakc/sleevePlayer';
 export const pixiApp = new Application({
     resizeTo: window
-})
+});
 
-document.body.appendChild(pixiApp.view)
+document.body.appendChild(pixiApp.view);
 
-export const deckDurack = new DeckDurack(pixiApp)
+export const deckDurack = new DeckDurack(pixiApp);
+// deckDurack.addItemDeckCards('10Spades')
+deckDurack.addGoat()
+// deckDurack.addMapDeckCards();
 
-deckDurack.addMapDeckCards()
+const seelvePlayer = new SeelvePlayer(deckDurack)
+
+seelvePlayer.audit()
+const zone = new DurackGame(pixiApp, deckDurack, seelvePlayer);
+zone.addZoneAtackPlayer();
+
+const movePlayers = new MovePlayers(zone, deckDurack, pixiApp);
+movePlayers.turn(1);
 
 
-// const zone = new DurackGamePlayerOne(pixiApp)
-
-const zone = new DurackGame(pixiApp, deckDurack)
-// pixiApp.stage.addChild(deckInteractive)
