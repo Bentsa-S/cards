@@ -1,27 +1,27 @@
 import { Assets } from "pixi.js"
 
 export const cardImages = [
-    "7Hearts",
-    "10Clubs",
-    "10Diamonds",
-    "10Hearts",
-    "10Spades",
-    "AClubs",
-    "ADiamonds",
-    "AHearts",
-    "ASpades",
-    "JClubs",
-    "JDiamonds",
-    "JHearts",
-    "JSpades",
-    "KClubs",
-    "KDiamonds",
-    "KHearts",
-    "KSpades",
-    "QClubs",
-    "QDiamonds",
-    "QHearts",
-    "QSpades"
+    "7-Hearts",
+    "10-Clubs",
+    "10-Diamonds",
+    "10-Hearts",
+    "10-Spades",
+    "A-Clubs",
+    "A-Diamonds",
+    "A-Hearts",
+    "A-Spades",
+    "J-Clubs",
+    "J-Diamonds",
+    "J-Hearts",
+    "J-Spades",
+    "K-Clubs",
+    "K-Diamonds",
+    "K-Hearts",
+    "K-Spades",
+    "Q-Clubs",
+    "Q-Diamonds",
+    "Q-Hearts",
+    "Q-Spades"
   ];
   
 const deckThirtySixCardsKey = {

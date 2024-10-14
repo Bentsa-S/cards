@@ -1,6 +1,6 @@
 import { Graphics } from "pixi.js";
 import gsap from "gsap";
-import {postCoordinatesCadsDefP} from './wsRoomDurack'
+import {postCoordinatesCadsAtackP} from './wsRoomDurack'
 
 export class DurackGame {
     constructor(app, mapCards, seelvePlayer) {
@@ -35,10 +35,12 @@ export class DurackGame {
     addEventListeners() {
         
         this.mapCards.getMap().forEach((card, key) => {
-                
-            if (this.isInside(card.sprite)) {
+            console.log(card.castomMuving);
+            
+            if (this.isInside(card.sprite) && card.castomMuving) {
                 this.cardsToZone.set(card.sprite.name, card);
                 this.seelvePlayer.removeCardSeelvate(key)  
+                card.castomMuving = false
             }
 
         })
@@ -62,10 +64,8 @@ export class DurackGame {
 
     addZoneDefendPlayer(){
         Array.from(this.cardsToZone.values()).forEach((e, index) => {     
-            if(!e.getZone()){
-                e.addInteractiveZone(this.cardPositions[index].x, this.cardPositions[index].y)
+            e.addInteractiveZone(this.cardPositions[index].x, this.cardPositions[index].y)
                 // e.addInteractiveZone(100, 100)
-            }
         })
     }
 
@@ -90,7 +90,7 @@ export class DurackGame {
         if (index < this.cardPositions.length) {
             gsap.to(e.sprite, { x: this.cardPositions[index].x, y: this.cardPositions[index].y, duration: 0.5 });
             gsap.to(e.sprite.scale, { x: 0.4, y: 0.4, duration: 0.5 });            
-            postCoordinatesCadsDefP(this.cardPositions[index].x, this.cardPositions[index].y, e.sprite.name)      
+            postCoordinatesCadsAtackP(this.cardPositions[index].x, this.cardPositions[index].y, e.sprite.name)      
         }else{
             gsap.to(e.sprite, { x: 200, y: 500 });
 

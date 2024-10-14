@@ -2,22 +2,26 @@ import { DraggableItem } from "./durackCardsMove";
 import { deckThirtySixCards } from "../textures/textures";
 import { cardImages } from '../textures/textures'
 import { gsap } from "gsap";
+import { getShuffledDeck } from './wsRoomDurack'
 
 export class DeckDurack{
-    constructor(app){
+    constructor(app, cardImages){
         this.cardImages = cardImages
         this.map = new Map()
         this.app = app
+        this.deck
+        
+        console.log(this.cardImages);
+        
+    }
 
+    addDeckToGame() {
         for (let i = 0; i < this.cardImages.length; i++) {
             const item = this.cardImages[i];
-            this.map.set(item, new DraggableItem(deckThirtySixCards[item], item, app));
+            this.map.set(item, new DraggableItem(deckThirtySixCards[item], item, this.app));
         }
 
-        const items = Array.from(this.map.entries());
-        items.sort(() => Math.random() - 0.5);
-        this.map = new Map(items)
-        this.deck = new Map(items)
+        this.deck = new Map(this.map)
     }
 
     getMap(){
@@ -34,8 +38,8 @@ export class DeckDurack{
         });
     }
 
-    addGoat(){
-        const goat = Array.from(this.map.entries())[20][1].sprite;
+    addGoat(){        
+        const goat = Array.from(this.deck.entries())[20][1].sprite;
         this.app.stage.addChild(goat);
 
         goat.position.x = -30
