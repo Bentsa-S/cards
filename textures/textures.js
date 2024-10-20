@@ -24,14 +24,14 @@ export const cardImages = [
     "Q-Spades"
   ];
   
-const deckThirtySixCardsKey = {
-    card: '../assets/card.png',
-    card1: '../assets/card1.png'
-}
+const deckThirtySixCardsKey = {}
 
 for (let i of cardImages) {
     deckThirtySixCardsKey[i] = `../assets/${i}.png`;
 }
+
+export const cardBacks = await Assets.load('../assets/card.png')
+export const userImg = await Assets.load('../assets/iconeUser.png')
 
 Assets.addBundle('deckThirtySixCards', deckThirtySixCardsKey)
 export const deckThirtySixCards = await Assets.loadBundle('deckThirtySixCards')

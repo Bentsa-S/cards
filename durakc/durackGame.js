@@ -3,11 +3,10 @@ import gsap from "gsap";
 import {WsRoomDurack} from './wsRoomDurack'
 
 export class DurackGame {
-    constructor(app, mapCards, seelvePlayer) {
+    constructor(app, mapCards) {
         this.zone = new Graphics();
         this.cardsToZone = new Map();
         this.mapCards = mapCards
-        this.seelvePlayer = seelvePlayer
         this.app = app;
 
         // Зона для першого гравця
@@ -34,12 +33,11 @@ export class DurackGame {
 
     addEventListeners() {
         
-        this.mapCards.getMap().forEach((card, key) => {
+        this.mapCards.getDeck().forEach((card, key) => {
             console.log(card.castomMuving);
             
             if (this.isInside(card.sprite) && card.castomMuving) {
                 this.cardsToZone.set(card.sprite.name, card);
-                this.seelvePlayer.removeCardSeelvate(key)  
                 card.castomMuving = false
             }
 

@@ -1,67 +1,73 @@
 import { DraggableItem } from "./durackCardsMove";
 import { deckThirtySixCards } from "../textures/textures";
+import { cardImages } from "../textures/textures";
 import { gsap } from "gsap";
 
 export class DeckDurack{
-    constructor(app, cardImages){
-        // this.cardImages = [    
-        //     "7-Hearts",
-        //     "10-Clubs",
-        //     "10-Diamonds",
-        //     "10-Hearts",
-        //     "10-Spades",
-        // ]
+    constructor(app){
         this.cardImages = cardImages
-        this.map = new Map()
+        this.deck = new Map()
+        this.deckGame = new Map()
+
         this.app = app
-        this.deck
-                
     }
 
-    addNewDeckToGame(card) {
-        for (let i = 0; i < card.length; i++) {
-            const item = card[i];
-            this.map.set(item, new DraggableItem(deckThirtySixCards[item], item, this.app));
+    addPlayerCards(cards) {
+        for (let i = 0; i < cards.length; i++) {
+            const name = cards[i];
+            const item = new DraggableItem(deckThirtySixCards[name], name, this.app)
+            item.addAppThisChaild()
+            this.deck.set(name, item);
         }
 
-        this.deck = new Map(this.map)
     }
 
-    getMap(){
-        return this.map
+    addDeckToGame() {
+        for (let i = 0; i < this.cardImages.length; i++) {
+            const name = this.cardImages[i];
+            const item = new DraggableItem(deckThirtySixCards[name], name, this.app)
+            this.deckGame.set(name, item);
+        }
     }
 
-    getDeck(){
-        return this.deck
+    audit(){        
+
+        while(this.deck.size < 6){
+            const goat = Array.from(this.deck.entries())[0]
+            this.deck.set(goat[0], goat[1])
+            
+            goat[1].addAppThisChaild()
+        }
     }
 
-    addMapDeckCards(){                       
-        this.map.forEach((value) => {            
-            value.addAppThisChaild()
-        });
-    }
-
-    addGoat(){       
-        // console.log(Array.from(this.deck.entries())[1][1].sprite);
- 
-        const goat = Array.from(this.deck.entries())[1][1].sprite;
+    addGoat(nameSprite){  
+        console.log(nameSprite);
+             
+        const classCard = new DraggableItem(deckThirtySixCards[nameSprite], nameSprite, this.app)
         
-        this.app.stage.addChild(goat);
+        this.app.stage.addChild(classCard.sprite);
 
-        goat.position.x = -30
-        goat.position.y = 300
-        goat.interactive = false
+        classCard.sprite.position.x = -30
+        classCard.sprite.position.y = 300
+        classCard.sprite.interactive = false
 
-        gsap.to(goat, { x: 20, y: 300, duration: 0.5, rotation: 1.5 });
+        gsap.to(classCard.sprite, { x: 20, y: 300, duration: 0.5, rotation: 1.5 });
     }
 
     addItemDeckCards(item){       
-        this.map.forEach((value, index) => {
+        this.deck.forEach((value, index) => {
             if (item === index){
                 value.addAppThisChaild()
 
             }            
         });
+    }
+
+    getDeck(){
+        return this.deck
+    }
+    getFullDeck(){
+        return this.deckGame
     }
 
 }

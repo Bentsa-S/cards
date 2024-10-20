@@ -118,6 +118,7 @@ export class DraggableItem {
             newZone.interactive = true;
             newZone.on('pointerup', () => {
                 this.app.stage.children.forEach((e) => {
+                    
                     const bounds = newZone.getBounds();     
                     if (
                         e.x > bounds.x &&

@@ -15,16 +15,10 @@ export class WsRoomDurack{
         return WsRoomDurack.socket
     }
 
-    postRedy(){    
-        if (WsRoomDurack.socket.readyState === WebSocket.CONNECTING) {
-            WsRoomDurack.socket.addEventListener('open', () => {
-                WsRoomDurack.socket.send(JSON.stringify({type: 'redy'}));
-
-            });
-        }else {
-            console.error("WebSocket is not ready to send data. Current state: ", WsRoomDurack.socket.readyState);
-        }
+    postReady(){    
+        WsRoomDurack.socket.send(JSON.stringify({type: 'redy'}));
     }
+
     postCoordinatesCadsAtackP(x, y, name){
         const message = {
             type: 'atack',
@@ -33,6 +27,14 @@ export class WsRoomDurack{
                 x: x,
                 y: y
             }
+        };
+        this.socket.send(JSON.stringify(message));
+    }
+
+    getCards(number){
+        const message = {
+            type: 'getCards',
+            number: number,
         };
         this.socket.send(JSON.stringify(message));
     }
