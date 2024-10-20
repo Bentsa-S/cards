@@ -1,6 +1,6 @@
 import { Sprite, Ticker, Graphics } from "pixi.js";
 import gsap from "gsap";
-import { postCoordinatesCadsDefP } from './wsRoomDurack'
+import { WsRoomDurack } from './wsRoomDurack'
 import { deckThirtySixCards } from "../textures/textures";
 
 export class DraggableItem {
@@ -130,6 +130,7 @@ export class DraggableItem {
                             this.getRank(e.name) > this.getRank(this.sprite.name)
                         ){
                             if (this.sprite != e) {
+                                let webSocket = new WsRoomDurack()
                                 index = 1;
                                 this.app.stage.removeChild(e);
                                 this.app.stage.addChild(e);
@@ -139,7 +140,7 @@ export class DraggableItem {
                                 gsap.to(e, { x: x + 20, y: y, duration: 0.5, rotation: 0.4 });
                                 gsap.to(e.scale, { x: 0.4, y: 0.4, duration: 0.5 });
 
-                                postCoordinatesCadsDefP(x + 20, y, e.name)
+                                webSocket.postCoordinatesCadsDefP(x + 20, y, e.name)
 
                             }
                         }

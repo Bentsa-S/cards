@@ -1,55 +1,82 @@
 
-export const wsRoomDurack = new WebSocket('ws://127.0.0.1:8000/')
+// export const wsRoomDurack = new WebSocket('ws://127.0.0.1:8000/')
 
-
-export function postCoordinatesCadsAtackP(x, y, name){
-    const message = {
-        type: 'atack',
-        name: name,
-        coordinates: {
-            x: x,
-            y: y
-        }
-    };
-    if (wsRoomDurack.readyState === WebSocket.CONNECTING) {
-        wsRoomDurack.addEventListener('open', () => {
-            wsRoomDurack.send(JSON.stringify(message));
-        });
-    } else if (wsRoomDurack.readyState === WebSocket.OPEN) {
-        wsRoomDurack.send(JSON.stringify(message));
-    } else {
-        console.error("WebSocket is not ready to send data. Current state: ", wsRoomDurack.readyState);
+export class WsRoomDurack{
+    static socket
+    constructor(){
+        this.socket = this.getSocket()
+        // this.postRedy()
     }
-}
 
-export function postCoordinatesCadsDefP(x, y, name){
-    const message = {
-        type: 'def',
-        name: name,
-        coordinates: {
-            x: x,
-            y: y
+    getSocket(){
+        if(!WsRoomDurack.socket){
+            WsRoomDurack.socket = new WebSocket('ws://127.0.0.1:8000/')
         }
-    };
-    if (wsRoomDurack.readyState === WebSocket.CONNECTING) {
-        wsRoomDurack.addEventListener('open', () => {
-            wsRoomDurack.send(JSON.stringify(message));
-            console.log(message);
-            
-        });
-    } else if (wsRoomDurack.readyState === WebSocket.OPEN) {
-        wsRoomDurack.send(JSON.stringify(message));
-        console.log(message);
-
-    } else {
-        console.error("WebSocket is not ready to send data. Current state: ", wsRoomDurack.readyState);
+        return WsRoomDurack.socket
     }
+
+    postRedy(){    
+        if (WsRoomDurack.socket.readyState === WebSocket.CONNECTING) {
+            WsRoomDurack.socket.addEventListener('open', () => {
+                WsRoomDurack.socket.send(JSON.stringify({type: 'redy'}));
+
+            });
+        }else {
+            console.error("WebSocket is not ready to send data. Current state: ", WsRoomDurack.socket.readyState);
+        }
+    }
+    postCoordinatesCadsAtackP(x, y, name){
+        const message = {
+            type: 'atack',
+            name: name,
+            coordinates: {
+                x: x,
+                y: y
+            }
+        };
+        this.socket.send(JSON.stringify(message));
+    }
+
+    postCoordinatesCadsDefP(x, y, name){
+        const message = {
+            type: 'def',
+            name: name,
+            coordinates: {
+                x: x,
+                y: y
+            }
+        };
+        WsRoomDurack.socket.send(JSON.stringify(message));
+    }
+    
 }
 
 
-export async function getShuffledDeck() {
-        const response = await fetch('http://127.0.0.1:8000/rooms/');
-        const data = await response.json();
-        console.log("Отримана колода:", data.deck);
-        return data.deck;
-}
+
+
+
+// postRedy()
+
+// wsRoomDurack.onmessage = (event) => {
+//     const serverData = JSON.parse(event.data)
+
+//     console.log(serverData.cards);
+    
+//     const deckDurack = new DeckDurack(pixiApp, serverData.cards);
+//     deckDurack.addDeckToGame();
+    
+    
+//     // deckDurack.addItemDeckCards('10Spades')
+    
+//     deckDurack.addGoat()
+//     deckDurack.addMapDeckCards();
+    
+//     const seelvePlayer = new SeelvePlayer(deckDurack)
+    
+//     // seelvePlayer.audit()
+//     const zone = new DurackGame(pixiApp, deckDurack, seelvePlayer);
+//     zone.addZoneAtackPlayer();
+    
+//     const movePlayers = new MovePlayers(zone, deckDurack, pixiApp);
+//     movePlayers.turn(2);
+// }
