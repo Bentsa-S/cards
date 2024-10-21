@@ -14,6 +14,7 @@ export class DraggableItem {
         this.direction = 0;
         this.zone = false
         this.castomMuving = true
+        this.goat
 
         this.sprite.anchor.set(0.5);
         this.sprite.scale.set(0.5);
@@ -88,12 +89,11 @@ export class DraggableItem {
     }
 
     // додається зона для взаєсодіі друго ігрока
-    addInteractiveZone(x, y) {
+    addInteractiveZone(x, y, goat = ' ') {
         if(!this.zone){
+            this.goat = goat.split('-')[1]
             this.sprite.off('pointerdown', this.onDragStartBind);
-            // this.sprite.off('pointerup', this.onDragEndBind);
-            // this.sprite.off('pointerupoutside', this.onDragEndBind);
-        
+
             const zoneWidth = 100;
             const zoneHeight = 150;
             let index = 0
@@ -126,10 +126,7 @@ export class DraggableItem {
                         e.y > bounds.y &&
                         e.y < bounds.y + bounds.height
                     ){
-                        if(
-                            this.getSuit(e.name) === this.getSuit(this.sprite.name) &&
-                            this.getRank(e.name) > this.getRank(this.sprite.name)
-                        ){
+                        if(this.checkCardsToDef(e.name, this.sprite.name)){
                             if (this.sprite != e) {
                                 let webSocket = new WsRoomDurack()
                                 index = 1;
@@ -140,7 +137,6 @@ export class DraggableItem {
                                 
                                 gsap.to(e, { x: x + 20, y: y, duration: 0.5, rotation: 0.4 });
                                 gsap.to(e.scale, { x: 0.4, y: 0.4, duration: 0.5 });
-
                                 webSocket.postCoordinatesCadsDefP(x + 20, y, e.name)
 
                             }
@@ -155,10 +151,34 @@ export class DraggableItem {
         return this.zone
     }
 
-    getSuit(name){
-        return name.split('-')[1]
+    checkCardsToDef(nameDef, nameAtack){
+        console.log(123);
+        
+        if (
+            (
+                this.getSuit(nameDef) === this.getSuit(nameAtack) && // Same suit
+                this.getRank(nameDef) > this.getRank(nameAtack) // Higher rank
+            ) || (
+                this.getSuit(nameDef) === 'trump' && // e.name is a trump card
+                this.getSuit(nameAtack) !== 'trump' // sprite.name is not a trump card
+            )
+        ) {
+            console.log(222222);
+            
+            return true
+        }else{
+            return false
+        }
+        
     }
-    getRank = (name) => {
+    getSuit(name) {
+        const suit = name.split('-')[1];
+        if (suit === this.goat) {
+            return 'trump';
+        }
+        return suit;
+    }
+        getRank = (name) => {
         const rank = name.split('-')[0];
         const rankOrder = { 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
         return rankOrder[rank] || parseInt(rank);

@@ -13,12 +13,13 @@ export class MainControllerGame{
         this.cards
         this.deckDurack = new DeckDurack(this.app);
         this.enemyPlayer = new EnemyPlayer(this.app)
-        this.Gamezone = new DurackGame(this.app, this.deckDurack);
-
+        this.deckDurack.addDeckToGame()
+        this.gameZone = new DurackGame(this.app, this.deckDurack);
+        this.goat
     }
 
     start(){
-        this.deckDurack.addDeckToGame()
+        
         const buttonReady = new Button(this.app, this.WsRoom, 'Ready')
         buttonReady.addClickRedi()
         buttonReady.onClickRedi
@@ -27,16 +28,18 @@ export class MainControllerGame{
 
         this.WsRoom.socket.onmessage = (event) => {
             const serverData = JSON.parse(event.data)
-
+            // if(!serverData.message.type){
+            //     serverData.cards.type = ' '
+            // }
         
             console.log(serverData.message);
-            if(serverData.cards){
+            if(serverData.message.type === 'cards'){
                 if(this.cards){
-                    this.cards.concat(serverData.cards) 
+                    this.cards.concat(serverData.message.cards) 
                     console.log(this.cards);
                     
                 }else{
-                    this.cards = serverData.cards
+                    this.cards = serverData.message.cards
                 }
     
                 this.deckDurack.addPlayerCards(this.cards);
@@ -48,28 +51,24 @@ export class MainControllerGame{
                 // deckDurack.addGoat()
                 // seelvePlayer.audit()
                 
-            }
-            if (serverData.message.type === 'name'){
+            }else if (serverData.message.type === 'name'){
                 console.log(serverData.message.name);
                 
                 this.enemyPlayer.addName(serverData.message.name)
                 this.enemyPlayer.addEnemy(400, 60)
-            }
+            }else if(serverData.message.type === 'redy'){
 
-            // if(serverData.message.type === 'redy'){
+                movePlayers = new MovePlayers(this.gameZone, this.deckDurack, this.enemyPlayer, this.app, serverData);
+                movePlayers.turn(2, this.goat);
+                console.log(this.goat);
+                
+            }else if(serverData.message.type === 'def'){
 
-            //     movePlayers = new MovePlayers(this.Gamezone, this.deckDurack, this.app, serverData);
-            //     movePlayers.turn(1);
-            // }
-            if(serverData.message.type === 'atack'){
-
-                movePlayers = new MovePlayers(this.Gamezone, this.deckDurack, this.enemyPlayer, this.app, serverData);
-                movePlayers.turn(1);
-            }
-            
-            
-            if(serverData.message.type === 'goat'){
+                movePlayers = new MovePlayers(this.gameZone, this.deckDurack, this.enemyPlayer, this.app, serverData);
+                movePlayers.turn(2, this.goat);
+            }else if(serverData.message.type === 'goat'){
                 this.deckDurack.addGoat(serverData.message.goat)
+                this.goat = serverData.message.goat
             }
 
         }

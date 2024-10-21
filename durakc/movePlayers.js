@@ -12,7 +12,7 @@ export class MovePlayers{
     }
 
 
-    turn(number){
+    turn(number, goat){
         switch (number) {
             case 1:
             this.gameZona.removeZoneAtackPlayer() 
@@ -22,38 +22,31 @@ export class MovePlayers{
                         const x = this.serverData.message.coordinates.x
                         const y = this.serverData.message.coordinates.y
                         if(!card.getZone()){
-                            card.sprite.position.x = 1
-                            card.sprite.position.y = 1
-    
                             this.enemyPlayer.moveCardsEnemy(x, y, card.sprite.texture, card.sprite.name)
-                            this.enemyPlayer.cardCount--                            
                             this.enemyPlayer.createCardIcons()    
                         }
-                        card.addInteractiveZone(x, y)
+                        card.addInteractiveZone(x, y, goat)
                     }
                 });
             }
             break;
             case 2:
-            this.gameZona.addZoneAtackPlayer()
+            this.gameZona.addZoneAtackPlayer()      
             if(this.serverData.message.type === 'def'){
                 this.deckDurack.getFullDeck().forEach((card) => {
                     if(card.sprite.name === this.serverData.message.name){
-                        this.app.stage.addChild(card.sprite);                            
-                        card.sprite.interactive = false
-                        card.castomMuving = false
+                        const x = this.serverData.message.coordinates.x
+                        const y = this.serverData.message.coordinates.y
                         if(!card.getZone()){
-                            card.sprite.position.x = 1
-                            card.sprite.position.y = 1
-        
-                            gsap.to(card.sprite.scale, { x: 0.4, y: 0.4, duration: 0.5 });
-                            gsap.to(card.sprite, { x: this.serverData.message.coordinates.x, y: this.serverData.message.coordinates.y, duration: 0.5, rotation: 0.4 });
-
-    
+                            this.gameZona.cardsToZoneAtack.set(card.sprite.name, card);
+                            card.castomMuving = false
+                            this.enemyPlayer.moveCardsEnemy(x, y, card.sprite.texture, card.sprite.name, 0.4)
+                            this.enemyPlayer.createCardIcons()    
                         }    
                     }
                 });
             }
+
             default:
                 break;
         }

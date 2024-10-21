@@ -97,10 +97,10 @@ export class EnemyPlayer {
         });
     }
 
-    moveCardsEnemy(x, y, texture, nameCard) {
-        const card = this.cardSprites.shift();
+    moveCardsEnemy(x, y, texture, nameCard, rotation = 0) {
+        const card = this.cardSprites.shift()
+        this.cardCount--
         const globalPosition = this.container.toGlobal(card.position);
-    
         this.container.removeChild(card);
         card.position.set(globalPosition.x, globalPosition.y);
         card.name = nameCard
@@ -108,7 +108,7 @@ export class EnemyPlayer {
         this.app.stage.addChild(card);
         
 
-        gsap.to(card, {rotation: 0, duration: 1});
+        gsap.to(card, {rotation: rotation, duration: 1});
     
         // анімація перевороту карт
         gsap.to(card.scale, { x: 0, duration: 1,

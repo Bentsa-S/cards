@@ -1,11 +1,7 @@
-import { Application, Sprite } from 'pixi.js';
-import { DurackGame } from './durakc/durackGame';
-import { DeckDurack } from './durakc/durakDeck';
-import { MovePlayers } from './durakc/movePlayers';
-import { cardImages } from './textures/textures'
+import { Application } from 'pixi.js';
 import { MainControllerGame } from './durakc/main';
 import { userImg } from './textures/textures';
-export const pixiApp = new Application({
+const pixiApp = new Application({
     resizeTo: window
 });
 

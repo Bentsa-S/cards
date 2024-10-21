@@ -54,13 +54,11 @@ export class DeckDurack{
         gsap.to(classCard.sprite, { x: 20, y: 300, duration: 0.5, rotation: 1.5 });
     }
 
-    addItemDeckCards(item){       
-        this.deck.forEach((value, index) => {
-            if (item === index){
-                value.addAppThisChaild()
-
-            }            
-        });
+    addItemDeckCards(name, item, x, y){       
+        this.deck.set(name, item)
+        item.addAppThisChaild()
+        item.sprite.position.x = x
+        item.sprite.position.y = y
     }
 
     getDeck(){
