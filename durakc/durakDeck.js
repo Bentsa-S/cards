@@ -2,6 +2,7 @@ import { DraggableItem } from "./durackCardsMove";
 import { deckThirtySixCards } from "../textures/textures";
 import { cardImages } from "../textures/textures";
 import { gsap } from "gsap";
+import { WsRoomDurack } from "./wsRoomDurack";
 
 export class DeckDurack{
     constructor(app){
@@ -12,16 +13,56 @@ export class DeckDurack{
         this.app = app
     }
 
-    addPlayerCards(cards) {
-        for (let i = 0; i < cards.length; i++) {
-            const name = cards[i];
-            const item = new DraggableItem(deckThirtySixCards[name], name, this.app)
-            item.addAppThisChaild()
-            this.deck.set(name, item);
+    addPlayerCards(cardsPromise) {
+        let cards
+        if(this.deck){
+            const deckArry = Array.from(this.deck) 
+            cards = [ ...deckArry, ...cardsPromise ]
+        }else {
+            cards = cardsPromise
         }
+        const baseSpacing = 15;
+        const maxCards = 20;
+        const minSpacingFactor = 0.5;
+        const screenWidth = window.innerWidth;
+    
+        const cardCount = cards.length;
+        const spacingFactor = cardCount < maxCards
+            ? minSpacingFactor + (maxCards - cardCount) * 0.1
+            : minSpacingFactor;
+    
+        const totalWidth = (cardCount * 100 * 0.1) + (cardCount - 1) * (baseSpacing * spacingFactor);
+        const startX = (screenWidth - totalWidth) / 2;
+    
+        for (let i = 0; i < cards.length; i++) {
+            const x = startX + i * (100 * 0.1 + (baseSpacing * spacingFactor));
+            const name = cards[i];
+    
+            const stageItem = this.app.stage.children.find(child => child.name === name);
+            if (stageItem) {
+                // Якщо карта є серед дітей сцени, оновлюємо її позицію
+                const positionX = stageItem.position.x
+                const positionY = stageItem.position.y
 
+                this.app.stage.removeChild(stageItem)
+                const item = new DraggableItem(deckThirtySixCards[name], name, this.app);
+
+                item.spaunThisSprite(positionX, positionY)
+                item.updatePosition(x);
+                this.deck.set(name, item);
+
+            } else {
+                // Створюємо нову карту і додаємо її в колоду                
+                const item = new DraggableItem(deckThirtySixCards[name], name, this.app);
+                item.addAppThisChaild(x);
+                this.deck.set(name, item);
+                console.log(this.deck);
+                
+            }
+        }
     }
-
+    
+    
     addDeckToGame() {
         for (let i = 0; i < this.cardImages.length; i++) {
             const name = this.cardImages[i];
@@ -31,12 +72,10 @@ export class DeckDurack{
     }
 
     audit(){        
-
-        while(this.deck.size < 6){
-            const goat = Array.from(this.deck.entries())[0]
-            this.deck.set(goat[0], goat[1])
-            
-            goat[1].addAppThisChaild()
+        if(this.deck.size < 6){
+            const wsRoom = new WsRoomDurack()
+            const numgerAudit = 6 - this.deck.size
+            wsRoom.getAuditCard(numgerAudit)
         }
     }
 
@@ -61,6 +100,31 @@ export class DeckDurack{
         item.sprite.position.y = y
     }
 
+    removeCardInDeck(key){
+        console.log(key);
+        
+        this.deck.delete(key)
+    }
+
+    removeCardInStage(key) {
+        console.log(key);
+        this.deck.forEach((item, name) => {
+            if (name === key) {
+                // Зупиняємо всі анімації GSAP, пов'язані з цим об'єктом
+                // gsap.killTweensOf(item.sprite); // Скасовуємо всі анімації для спрайта
+    
+                // Переконуємося, що спрайт не є null перед видаленням
+                    // Видаляємо спрайт зі сцени
+                this.app.stage.removeChild(item.sprite);
+    
+                item.sprite.name = null
+    
+                // Видаляємо елемент із `Map`
+                this.deck.delete(key);
+            }
+        });
+    }
+    
     getDeck(){
         return this.deck
     }

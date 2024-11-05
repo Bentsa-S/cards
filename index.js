@@ -9,6 +9,7 @@ document.body.appendChild(pixiApp.view);
 // postRedy()
 // getWb()
 console.log(userImg);
+pixiApp.stage.sortableChildren = true;
 
 const main = new MainControllerGame(pixiApp)
 main.start()

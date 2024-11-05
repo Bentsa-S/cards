@@ -50,7 +50,31 @@ export class WsRoomDurack{
         };
         WsRoomDurack.socket.send(JSON.stringify(message));
     }
-    
+
+    postImTeka(){
+        const message = {
+            type: 'teka',
+        };
+        WsRoomDurack.socket.send(JSON.stringify(message));
+
+    }
+
+    postWhipped(){
+        const message = {
+            type: 'whipped',
+        };
+        WsRoomDurack.socket.send(JSON.stringify(message));
+
+    }
+
+    getAuditCard(number){
+        const message = {
+            type: 'audit',
+            numberCard: number
+        };
+        WsRoomDurack.socket.send(JSON.stringify(message));
+
+    }
 }
 
 

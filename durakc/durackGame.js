@@ -33,15 +33,16 @@ export class DurackGame {
     }
 
     addEventListeners() {
-        console.log('====================================');
-        console.log(this.mapCards.getDeck());
-        console.log('====================================');
-        this.mapCards.getDeck().forEach((card, key) => {
-            console.log(card.castomMuving);
-            
-            if (this.isInside(card.sprite)) {
+        this.mapCards.getDeck().forEach((card, key) => {            
+            if (this.isInside(card)) {
                 this.cardsToZone.set(card.sprite.name, card);
+                console.log(key);
+                
+                this.mapCards.removeCardInDeck(key)
                 card.castomMuving = false
+            } else if (this.isInBounds(card)){
+                gsap.to( card.sprite, {x: card.firstPositionX, y: card.firstPositionY, duration: .3} )
+                
             }
 
         })
@@ -63,18 +64,28 @@ export class DurackGame {
         this.app.stage.removeChild(this.zone);        
     }
 
-    addZoneDefendPlayer(){
-        Array.from(this.cardsToZone.values()).forEach((e, index) => {     
-            e.addInteractiveZone(this.cardPositions[index].x, this.cardPositions[index].y)
-                // e.addInteractiveZone(100, 100)
-        })
+    checkCartToZones(){
+        if (this.cardsToZone.size === this.cardsToZoneAtack.size){
+            console.log(this.cardsToZone);
+            console.log(this.cardsToZoneAtack);
+            return true
+        }else {
+            return false
+        }
     }
 
-    removeZoneDefendPlayer(){
-        
-    }
+    isInBounds(card){
+        const sprite = card.sprite
+        const bounds = this.zone.getBounds();
 
-    isInside(sprite) {
+        const isInBounds = sprite.x > bounds.x && sprite.x < bounds.x + bounds.width &&
+        sprite.y > bounds.y && sprite.y < bounds.y + bounds.height;
+
+        if (isInBounds){ return true } else{ return false }
+
+    }
+    isInside(card) {
+        const sprite = card.sprite
         const bounds = this.zone.getBounds();
     
         // Перевіряємо, чи спрайт знаходиться в межах зони
@@ -93,9 +104,8 @@ export class DurackGame {
             const currentRank = card.sprite.name.split('-')[0];
             const newCardRank = sprite.name.split('-')[0];
     
-            if (currentRank === newCardRank) {
-                console.log(`Found matching rank: ${currentRank}`);
-                return true; // Якщо знайдена карта з таким же рангом, повертаємо true
+            if (currentRank === newCardRank) {                
+                return true;
             }
         }
         if (this.cardsToZoneAtack.size === 0) {
@@ -107,12 +117,11 @@ export class DurackGame {
             const newCardRank = sprite.name.split('-')[0];
     
             if (currentRank === newCardRank) {
-                console.log(`Found matching rank: ${currentRank}`);
-                return true; // Якщо знайдена карта з таким же рангом, повертаємо true
+                return true;
             }
         }
     
-        return false; // Якщо немає збігів по рангу, повертаємо false
+        return false;
     }
         
 
@@ -128,6 +137,11 @@ export class DurackGame {
             gsap.to(e.sprite, { x: 200, y: 500 });
 
         }
+    }
+
+    clearCardZone(){
+        this.cardsToZone = new Map()
+        this.cardsToZoneAtack = new Map()
     }
 
 }

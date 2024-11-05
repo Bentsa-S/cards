@@ -1,16 +1,19 @@
 import { Sprite, Ticker, Graphics } from "pixi.js";
 import gsap from "gsap";
 import { WsRoomDurack } from './wsRoomDurack'
-import { deckThirtySixCards } from "../textures/textures";
+import { cardBacks, deckThirtySixCards } from "../textures/textures";
 
 export class DraggableItem {
     constructor(texture, name, app) {
         this.sprite = new Sprite(texture);
         this.ticker = new Ticker();
         this.app = app;
+        this.textureCard = texture
         this.dragging = false;
         this.offsetX = 0;
         this.offsetY = 0;
+        this.firstPositionX
+        this.firstPositionY
         this.direction = 0;
         this.zone = false
         this.castomMuving = true
@@ -68,7 +71,7 @@ export class DraggableItem {
 
     // Анімація
     animate() {
-        if (this.direction === 1 && this.sprite.y > 450) {
+        if (this.direction === 1 && this.sprite.y > 480) {
             this.sprite.y -= 6;
         }
         else if (this.direction === -1 && this.sprite.y < 500 && this.sprite.y > 400) {
@@ -82,8 +85,51 @@ export class DraggableItem {
     }
 
     // додається спрайт на сцену
-    addAppThisChaild(){
+    updatePosition(x = 300, y = 500){
+        this.firstPositionX = x
+        this.firstPositionY = y
+
+        gsap.to(this.sprite, {rotation: 0, duration: .7});
+        gsap.to(this.sprite, { x: x, y: y, duration: 1 });
+        gsap.to(this.sprite.scale, { x: .5, y: .5, duration: .5 });
+
+        this.interactive = true
+        this.ticker.add(this.animate.bind(this));
+        this.ticker.start();
+
+    }
+
+    spaunThisSprite(x, y){
+        this.sprite.position.x = x
+        this.sprite.position.y = y
+
         this.app.stage.addChild(this.sprite);
+        this.interactive = true
+        this.ticker.add(this.animate.bind(this));
+        this.ticker.start();
+    }
+    addAppThisChaild(x = 300, y = 500){
+        this.firstPositionX = x
+        this.firstPositionY = y
+        this.sprite.position.x = -30
+        this.sprite.position.y = 300
+        this.sprite.rotation = 1.3
+        this.sprite.texture = cardBacks
+        this.interactive = true
+        this.app.stage.addChild(this.sprite);
+        gsap.to(this.sprite, {rotation: 0, duration: .7});
+    
+        // анімація перевороту карт
+        gsap.to(this.sprite.scale, { x: 0, duration: .5,
+            onComplete: () => {
+                this.sprite.texture = this.textureCard;
+    
+                gsap.to(this.sprite.scale, { x: .5, y: .5, duration: .5 });
+            }
+        });
+    
+        gsap.to(this.sprite, { x: x, y: y, duration: 1 });
+
         this.ticker.add(this.animate.bind(this));
         this.ticker.start();
     }
@@ -117,6 +163,7 @@ export class DraggableItem {
             // Налаштовуємо взаємодію з зоною
             newZone.interactive = true;
             newZone.on('pointerup', () => {
+                this.app.stage.sortChildren();
                 this.app.stage.children.forEach((e) => {
                     
                     const bounds = newZone.getBounds();     
@@ -126,15 +173,15 @@ export class DraggableItem {
                         e.y > bounds.y &&
                         e.y < bounds.y + bounds.height
                     ){
-                        if(this.checkCardsToDef(e.name, this.sprite.name)){
+                        if(this.checkCardsToDef(e.name, this.sprite.name) && index === 0){
                             if (this.sprite != e) {
                                 let webSocket = new WsRoomDurack()
                                 index = 1;
-                                this.app.stage.removeChild(e);
-                                this.app.stage.addChild(e);
-                        
+                                // this.app.stage.removeChild(e);
+                                // this.app.stage.addChild(e);
+                                e.zIndex = 10;
+
                                 e.interactive = false;
-                                
                                 gsap.to(e, { x: x + 20, y: y, duration: 0.5, rotation: 0.4 });
                                 gsap.to(e.scale, { x: 0.4, y: 0.4, duration: 0.5 });
                                 webSocket.postCoordinatesCadsDefP(x + 20, y, e.name)
@@ -151,9 +198,7 @@ export class DraggableItem {
         return this.zone
     }
 
-    checkCardsToDef(nameDef, nameAtack){
-        console.log(123);
-        
+    checkCardsToDef(nameDef, nameAtack){        
         if (
             (
                 this.getSuit(nameDef) === this.getSuit(nameAtack) && // Same suit
@@ -162,9 +207,7 @@ export class DraggableItem {
                 this.getSuit(nameDef) === 'trump' && // e.name is a trump card
                 this.getSuit(nameAtack) !== 'trump' // sprite.name is not a trump card
             )
-        ) {
-            console.log(222222);
-            
+        ) {           
             return true
         }else{
             return false
@@ -178,11 +221,12 @@ export class DraggableItem {
         }
         return suit;
     }
-        getRank = (name) => {
+    getRank = (name) => {
         const rank = name.split('-')[0];
         const rankOrder = { 'J': 11, 'Q': 12, 'K': 13, 'A': 14 };
         return rankOrder[rank] || parseInt(rank);
     };
+
 }
 
 

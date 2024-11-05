@@ -17,7 +17,6 @@ export class EnemyPlayer {
         this.userImg.scale.set(0.07);
         this.container.addChild(this.userImg);
 
-        
         console.log(this.userImg);
     }
 
@@ -46,7 +45,7 @@ export class EnemyPlayer {
         this.container.addChild(this.nameText);
 
     }
-    async createCardIcons() {
+    async createCardIcons(tekaCard = false) {
         // Завантажуємо текстуру карти
         const cardTexture = cardBacks;
         
@@ -56,10 +55,14 @@ export class EnemyPlayer {
                 const cardSprite = new Sprite(cardTexture);
                 cardSprite.anchor.set(0.5);
                 cardSprite.scale.set(0.1);
-    
+                if(!tekaCard){
+                    cardSprite.position.x = -300
+                    cardSprite.position.y = 300
+                }
                 // Додаємо картки до контейнера
                 this.cardSprites.push(cardSprite);
                 this.container.addChild(cardSprite);
+
             }
     
         }
@@ -88,13 +91,27 @@ export class EnemyPlayer {
         const startX = -totalWidth / 2;
 
         this.cardSprites.forEach((cardSprite, index) => {
-            cardSprite.x = startX + index * (cardSprite.width * 0.1 + (baseSpacing * spacingFactor)); 
-            cardSprite.y = this.userImg.height / 2 + 40; // Внизу від фото
+            if(tekaCard){
+                cardSprite.x = startX + index * (cardSprite.width * 0.1 + (baseSpacing * spacingFactor)); 
+                cardSprite.y = this.userImg.height / 2 + 40;
+            }else{
+                const x = startX + index * (cardSprite.width * 0.1 + (baseSpacing * spacingFactor)); 
+                const y = this.userImg.height / 2 + 40;
+                gsap.to(cardSprite, {x: x, y: y, duration: 1})
+            }
+
 
             // Нахил карток
             const angle = ((this.cardCount - 1) / 2 - index) * 0.2;
             cardSprite.rotation = angle;
         });
+    }
+
+    auditEnemy(){
+        if(this.cardCount > 6){
+            this.cardCount = 6
+            this.createCardIcons()
+        }
     }
 
     moveCardsEnemy(x, y, texture, nameCard, rotation = 0) {
@@ -120,6 +137,106 @@ export class EnemyPlayer {
         });
     
         gsap.to(card, { x: x, y: y, duration: 2 });
+    }
+
+
+    async whippedMove(deck) {
+        const promises = []; // Ініціалізуємо масив для збереження обіцянок
+        this.app.stage.sortChildren();
+        this.app.stage.children.forEach((item) => {
+            const isInBounds = item.x > 100 && item.x < 700 &&
+                item.y > 100 && item.y < 400;
+    
+            if (isInBounds) {
+                item.interactive = true;
+    
+                if (item.name === 'zone') {
+                    this.app.stage.removeChild(item);
+                } else {
+                    // Створюємо обіцянку для анімації
+                    const promise = new Promise((resolve) => {
+                        gsap.to(item.scale, {
+                            x: 0,
+                            duration: 0.5,
+                            onComplete: () => {
+                                item.texture = cardBacks;
+    
+                                gsap.to(item.scale, {
+                                    x: 0.4,
+                                    y: 0.4,
+                                    duration: 0.5,
+                                    onComplete: () => {
+                                        gsap.to(item, {
+                                            x: 1800,
+                                            y: 300,
+                                            duration: 3,
+                                            onComplete: () => {
+                                                deck.getDeck().forEach((cardSprite, cardName) => {
+                                                    if (cardName === item.name) {
+                                                        deck.removeCardInStage(cardName);
+                                                    }
+                                                });
+                                                // this.app.stage.removeChild(item);
+                                                resolve(); // Вирішуємо обіцянку, коли анімація закінчується
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    });
+    
+                    promises.push(promise); // Додаємо обіцянку до масиву
+                }
+            }
+        });
+    
+        // Чекаємо завершення всіх анімацій
+        await Promise.all(promises);
+    }
+    
+    takeMove(deck){
+        console.log(2);
+        const card = []
+        this.app.stage.sortChildren();
+        this.app.stage.children.forEach((e) => {
+            const isInBounds = e.x > 100 && e.x < 700 &&
+            e.y > 100 && e.y < 400;
+
+            if(isInBounds){
+                if (e.name === 'zone'){
+                    this.app.stage.removeChild(e.name)
+                }else {
+                    card.push(e.name)
+                    gsap.to(e.scale, {x: 0, duration: 1,
+                        onComplete: () => {
+                            e.texture = cardBacks
+                            gsap.to(e.scale, {x: 0.1, y: 0.1, duration: .5, 
+                                onComplete: () => {
+                                    gsap.to(e, {x: this.container.x, y: this.container.y + 67, duration: 0.5,
+                                        onComplete: () => {
+                                            deck.getDeck().forEach((cardSprite, cardName) => {
+                                                if (cardName === e.name) {
+                                                    deck.removeCardInStage(cardName);
+                                                }
+                                            });  
+                                            // this.app.stage.removeChild(e)
+                                            this.createCardIcons(true)
+                                          
+                                        }})
+                            
+                                }
+                            })
+                        }})
+
+                }
+                // gsap.to(e, {x: 1, y:1})
+
+            }
+        })
+        this.cardCount += card.length
+
+
     }
     
 }
