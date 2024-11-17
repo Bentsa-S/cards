@@ -2,10 +2,10 @@ import { ButtonTeka, ButtonWhipped } from "./button";
 
 
 export class ButtonControler {
-    constructor(app, wsRom, gameZone, deck){
+    constructor(app, wsRom, gameZone, deck, enemy){
         this.app = app
         this.wsRom = wsRom
-        this.teka = new ButtonTeka(app, wsRom, 'Беру', deck)
+        this.teka = new ButtonTeka(app, wsRom, 'Беру', deck, enemy)
         this.whipped = new ButtonWhipped(app, wsRom, 'Бито', gameZone, deck)
 
         document.addEventListener('mouseup', this.handleMouseUp.bind(this));

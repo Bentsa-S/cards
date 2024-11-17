@@ -198,6 +198,12 @@ export class DraggableItem {
         return this.zone
     }
 
+    fixZone(){
+        if(this.zone){
+            this.zone = false
+        }
+    }
+
     checkCardsToDef(nameDef, nameAtack){        
         if (
             (

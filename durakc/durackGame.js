@@ -140,8 +140,11 @@ export class DurackGame {
     }
 
     clearCardZone(){
-        this.cardsToZone = new Map()
-        this.cardsToZoneAtack = new Map()
+        this.cardsToZone.clear()
+        this.cardsToZoneAtack.clear()
+
+        console.log(this.cardsToZone.size);
+        
     }
 
 }

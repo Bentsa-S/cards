@@ -14,7 +14,7 @@ export class EnemyPlayer {
         this.container = new PIXI.Container();
 
         this.userImg.anchor.set(0.5);
-        this.userImg.scale.set(0.07);
+        this.userImg.scale.set(0.03);
         this.container.addChild(this.userImg);
 
         console.log(this.userImg);
@@ -34,6 +34,9 @@ export class EnemyPlayer {
         this.app.stage.addChild(this.container);
     }
 
+    removeEnemy(){
+        this.app.stage.removeChild(this.container);
+    }
     addName(name){
         this.nameText = new PIXI.Text(name, {
             fontSize: 24,
@@ -108,7 +111,7 @@ export class EnemyPlayer {
     }
 
     auditEnemy(){
-        if(this.cardCount > 6){
+        if(this.cardCount < 6){
             this.cardCount = 6
             this.createCardIcons()
         }
@@ -173,6 +176,8 @@ export class EnemyPlayer {
                                             onComplete: () => {
                                                 deck.getDeck().forEach((cardSprite, cardName) => {
                                                     if (cardName === item.name) {
+                                                        console.log('www');
+                                                        
                                                         deck.removeCardInStage(cardName);
                                                     }
                                                 });
@@ -190,52 +195,65 @@ export class EnemyPlayer {
                 }
             }
         });
+
+        this.deck.getFullDeck().forEach((card) => {            
+            card.fixZone()
+        }) 
     
         // Чекаємо завершення всіх анімацій
         await Promise.all(promises);
     }
     
-    takeMove(deck){
-        console.log(2);
+    async takeMove(deck){
+        const promises = [];
         const card = []
         this.app.stage.sortChildren();
-        this.app.stage.children.forEach((e) => {
-            const isInBounds = e.x > 100 && e.x < 700 &&
-            e.y > 100 && e.y < 400;
+        const promise = new Promise((resolve) => {
 
-            if(isInBounds){
-                if (e.name === 'zone'){
-                    this.app.stage.removeChild(e.name)
-                }else {
-                    card.push(e.name)
-                    gsap.to(e.scale, {x: 0, duration: 1,
-                        onComplete: () => {
-                            e.texture = cardBacks
-                            gsap.to(e.scale, {x: 0.1, y: 0.1, duration: .5, 
-                                onComplete: () => {
-                                    gsap.to(e, {x: this.container.x, y: this.container.y + 67, duration: 0.5,
-                                        onComplete: () => {
-                                            deck.getDeck().forEach((cardSprite, cardName) => {
-                                                if (cardName === e.name) {
-                                                    deck.removeCardInStage(cardName);
-                                                }
-                                            });  
-                                            // this.app.stage.removeChild(e)
-                                            this.createCardIcons(true)
-                                          
-                                        }})
-                            
-                                }
-                            })
-                        }})
+            this.app.stage.children.forEach((e) => {
+                const isInBounds = e.x > 100 && e.x < 700 &&
+                e.y > 100 && e.y < 400;
+
+                if(isInBounds){
+                    if (e.name === 'zone'){
+                        this.app.stage.removeChild(e.name)
+                    }else {
+                        card.push(e.name)
+                        gsap.to(e.scale, {x: 0, duration: 1,
+                            onComplete: () => {
+                                e.texture = cardBacks
+                                gsap.to(e.scale, {x: 0.1, y: 0.1, duration: .5, 
+                                    onComplete: () => {
+                                        gsap.to(e, {x: this.container.x, y: this.container.y + 67, duration: 0.5,
+                                            onComplete: () => {
+                                                this.cardCount++
+                                                deck.getDeck().forEach((cardSprite, cardName) => {
+                                                    if (cardName === e.name) {
+                                                        deck.removeCardInStage(cardName);
+                                                    }
+                                                });  
+                                                this.app.stage.removeChild(e)
+                                                this.createCardIcons(true)
+                                            
+                                            }})
+                                
+                                    }
+                                })
+                            }})
+
+                    }
+                    // gsap.to(e, {x: 1, y:1})
 
                 }
-                // gsap.to(e, {x: 1, y:1})
-
-            }
+            })
         })
-        this.cardCount += card.length
 
+        this.deck.getFullDeck().forEach((card) => {            
+            card.fixZone()
+        }) 
+
+        promises.push(promise)
+        await Promise.all(promises);
 
     }
     

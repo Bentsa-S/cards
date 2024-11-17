@@ -1,6 +1,7 @@
 // import { wsRoomDurack } from "./wsRoomDurack";
 import gsap from "gsap";
 import { Button, ButtonTeka } from "./button";
+import { deckThirtySixCards } from "../textures/textures";
 
 
 export class MovePlayers{
@@ -18,12 +19,15 @@ export class MovePlayers{
             case 2:
             this.gameZona.removeZoneAtackPlayer() 
             if(serverData.message.type === 'atack'){
-                this.deckDurack.getFullDeck().forEach((card) => {
+                console.log(deckThirtySixCards[serverData.message.name]);
+                
+                this.deckDurack.getFullDeck().forEach((card) => {                    
                     if(card.sprite.name === serverData.message.name){
+
                         const x = serverData.message.coordinates.x
                         const y = serverData.message.coordinates.y
                         if(!card.getZone()){
-                            this.enemyPlayer.moveCardsEnemy(x, y, card.sprite.texture, card.sprite.name)
+                            this.enemyPlayer.moveCardsEnemy(x, y, deckThirtySixCards[serverData.message.name], serverData.message.name)
                             this.enemyPlayer.createCardIcons()  
                         }
                         card.addInteractiveZone(x, y, goat)

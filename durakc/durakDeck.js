@@ -16,7 +16,9 @@ export class DeckDurack{
     addPlayerCards(cardsPromise) {
         let cards
         if(this.deck){
-            const deckArry = Array.from(this.deck) 
+            const deckArry = Array.from(this.deck.keys());
+            console.log(deckArry);
+            
             cards = [ ...deckArry, ...cardsPromise ]
         }else {
             cards = cardsPromise
@@ -35,31 +37,33 @@ export class DeckDurack{
         const startX = (screenWidth - totalWidth) / 2;
     
         for (let i = 0; i < cards.length; i++) {
-            const x = startX + i * (100 * 0.1 + (baseSpacing * spacingFactor));
+            const x = startX + i * (10 + baseSpacing * spacingFactor);
             const name = cards[i];
     
             const stageItem = this.app.stage.children.find(child => child.name === name);
+    
             if (stageItem) {
-                // Якщо карта є серед дітей сцени, оновлюємо її позицію
-                const positionX = stageItem.position.x
-                const positionY = stageItem.position.y
-
-                this.app.stage.removeChild(stageItem)
-                const item = new DraggableItem(deckThirtySixCards[name], name, this.app);
-
-                item.spaunThisSprite(positionX, positionY)
-                item.updatePosition(x);
-                this.deck.set(name, item);
-
+                // Перевіряємо, чи є об'єкт DraggableItem
+                if (this.deck.has(name)) {
+                    // Якщо це DraggableItem, оновлюємо позицію
+                    stageItem.position.x = x;
+                } else {
+                    // Якщо це не DraggableItem, видаляємо об'єкт та додаємо новий
+                    this.app.stage.removeChild(stageItem);
+                    const item = new DraggableItem(deckThirtySixCards[name], name, this.app);
+                    item.addAppThisChaild(x);
+                    this.deck.set(name, item);
+                }
             } else {
-                // Створюємо нову карту і додаємо її в колоду                
+                // Створюємо нову карту та додаємо її в колоду
                 const item = new DraggableItem(deckThirtySixCards[name], name, this.app);
                 item.addAppThisChaild(x);
                 this.deck.set(name, item);
-                console.log(this.deck);
-                
             }
         }
+
+        console.log(this.deck);
+        
     }
     
     
@@ -107,22 +111,16 @@ export class DeckDurack{
     }
 
     removeCardInStage(key) {
-        console.log(key);
-        this.deck.forEach((item, name) => {
-            if (name === key) {
-                // Зупиняємо всі анімації GSAP, пов'язані з цим об'єктом
-                // gsap.killTweensOf(item.sprite); // Скасовуємо всі анімації для спрайта
-    
-                // Переконуємося, що спрайт не є null перед видаленням
-                    // Видаляємо спрайт зі сцени
-                this.app.stage.removeChild(item.sprite);
-    
-                item.sprite.name = null
-    
-                // Видаляємо елемент із `Map`
-                this.deck.delete(key);
-            }
-        });
+        const item = this.deck.get(key);
+        if (item) {
+            console.log(item);
+            
+            this.app.stage.removeChild(item.sprite);
+            item.sprite.name = null;
+            this.deck.delete(key);
+        } else {
+            console.log(`Елемент із ключем ${key} не знайдено.`);
+        }
     }
     
     getDeck(){

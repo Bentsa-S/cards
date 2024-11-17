@@ -2,21 +2,55 @@
 // export const wsRoomDurack = new WebSocket('ws://127.0.0.1:8000/')
 
 export class WsRoomDurack{
-    static socket
-    constructor(){
-        this.socket = this.getSocket()
-        // this.postRedy()
-    }
-
-    getSocket(){
-        if(!WsRoomDurack.socket){
-            WsRoomDurack.socket = new WebSocket('ws://127.0.0.1:8000/')
+    static socket;
+    
+    static getSocket(numberPlayer = 0, roomId = 0) {
+        if (!this.socket) {
+            this.socket = new WebSocket(`ws://127.0.0.1:8000/durack/${numberPlayer}/${roomId}/`);
         }
-        return WsRoomDurack.socket
+        return this.socket;
+    }
+    constructor(numberPlayer = 0, roomId = 0) {
+        this.socket = WsRoomDurack.getSocket(numberPlayer, roomId);
     }
 
-    postReady(){    
-        WsRoomDurack.socket.send(JSON.stringify({type: 'redy'}));
+    // getSocket(numberPlayer = 0, roomId = 0){
+    //     if(!WsRoomDurack.socket){
+    //         WsRoomDurack.socket = new WebSocket(`ws://127.0.0.1:8000/durack/${numberPlayer}/${roomId}/`)
+    //     }
+    //     return WsRoomDurack.socket
+    // }
+    // WsRoomDurack.socket.onopen = () => {
+    //     this.postUser();
+    // };
+
+    
+    postUser(user, userId) {
+        this.socket.addEventListener('open', () => {
+            this.socket.send(JSON.stringify({
+                type: 'user',
+                name: user,
+                id: userId
+            }));
+        })
+    }
+    postReady() {
+        console.log(1);
+        if (this.socket.readyState === WebSocket.OPEN) {
+            console.log(2);
+            
+            WsRoomDurack.socket.send(JSON.stringify({ type: 'redy' }));
+        } else {
+            console.log("WebSocket is not open yet");
+        }
+    }
+    postSwapPosition(number){
+        const message = {
+            type: 'swap',
+            number: number,
+        };
+        this.socket.send(JSON.stringify(message));
+
     }
 
     postCoordinatesCadsAtackP(x, y, name){

@@ -11,7 +11,7 @@ document.body.appendChild(pixiApp.view);
 console.log(userImg);
 pixiApp.stage.sortableChildren = true;
 
-const main = new MainControllerGame(pixiApp)
+const main = new MainControllerGame(pixiApp, 2, 1, 'vasa', 12)
 main.start()
 
 // wsRoomDurack.onmessage = (event) => {
