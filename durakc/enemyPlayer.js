@@ -3,11 +3,12 @@ import { userImg, cardBacks } from "../textures/textures";
 import gsap from "gsap";
 
 export class EnemyPlayer {
-    constructor(app, name, cardCount) {
+    constructor( app, userId, name, cardCount ) {
         this.name = name || ' ';
         this.cardCount = cardCount || 0;
         this.cardCount > 10 ? this.cardCount = 10 : this.cardCount
         this.app = app;
+        this.userId = userId
         this.cardSprites = []
         this.userImg = new Sprite(userImg);
         
@@ -149,13 +150,15 @@ export class EnemyPlayer {
         this.app.stage.children.forEach((item) => {
             const isInBounds = item.x > 100 && item.x < 700 &&
                 item.y > 100 && item.y < 400;
-    
+            console.log(item.name);
+
             if (isInBounds) {
                 item.interactive = true;
     
                 if (item.name === 'zone') {
                     this.app.stage.removeChild(item);
                 } else {
+                    
                     // Створюємо обіцянку для анімації
                     const promise = new Promise((resolve) => {
                         gsap.to(item.scale, {
@@ -196,10 +199,13 @@ export class EnemyPlayer {
             }
         });
 
-        this.deck.getFullDeck().forEach((card) => {            
+        deck.getFullDeck().forEach((card) => {            
             card.fixZone()
+            card.atackMove = true
         }) 
-    
+        deck.getDeck().forEach((card) => {  
+            card.atackMove = true
+        })
         // Чекаємо завершення всіх анімацій
         await Promise.all(promises);
     }

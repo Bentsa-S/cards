@@ -63,47 +63,47 @@ export class ButtonWhipped extends Button{
     }
 
     onClick() { 
-        this.deck.audit()
+        // this.deck.audit()
         this.wsRoom.postWhipped()
-        this.app.stage.sortChildren()
-        this.removeFromStage()
+        // this.app.stage.sortChildren()
+        // this.removeFromStage()
 
-        this.app.stage.children.forEach((item) => {
-            const isInBounds = item.x > 100 && item.x < 700 &&
-            item.y > 100 && item.y < 400;
+        // this.app.stage.children.forEach((item) => {
+        //     const isInBounds = item.x > 100 && item.x < 700 &&
+        //     item.y > 100 && item.y < 400;
 
-            if(isInBounds){
-                if(item.name === 'zone'){
-                    this.app.stage.removeChild(item)
-                }else{
-                    console.log(item.name);
+        //     if(isInBounds){
+        //         if(item.name === 'zone'){
+        //             this.app.stage.removeChild(item)
+        //         }else{
+        //             console.log(item.name);
                 
-                    // анімація перевороту карт
-                    gsap.to(item.scale, { x: 0, duration: .5,
-                        onComplete: () => {
-                            item.texture = cardBacks;
+        //             // анімація перевороту карт
+        //             gsap.to(item.scale, { x: 0, duration: .5,
+        //                 onComplete: () => {
+        //                     item.texture = cardBacks;
                 
-                            gsap.to(item.scale, { x: .4, y: .4, duration: .5, 
-                                onComplete: () => {
-                                    gsap.to(item, { x: 1800, y: 300, duration: 3 });
-                                    gsap.to(item, {rotation: 1.5, duration: 1, onComplete: () => {
-                                        item.name = null
-                                        this.app.stage.removeChild(item)
-                                    }});
+        //                     gsap.to(item.scale, { x: .4, y: .4, duration: .5, 
+        //                         onComplete: () => {
+        //                             gsap.to(item, { x: 1800, y: 300, duration: 3 });
+        //                             gsap.to(item, {rotation: 1.5, duration: 1, onComplete: () => {
+        //                                 item.name = null
+        //                                 this.app.stage.removeChild(item)
+        //                             }});
 
-                                }});
+        //                         }});
                             
-                        }
+        //                 }
 
-                    })
+        //             })
                     
 
                     
-                }
+        //         }
 
-            }
+        //     }
 
-        })    
+        // })    
         
         this.deck.getFullDeck().forEach((card) => {
             card.fixZone()
@@ -115,11 +115,11 @@ export class ButtonWhipped extends Button{
 
 export class ButtonTeka extends Button{
     
-    constructor(app, wsRoom, text, deck, enemy){
+    constructor(app, wsRoom, text, deck, enemyContainer){
         super(app, wsRoom, text)
         this.wsRoom = wsRoom
         this.deck = deck
-        this.enemy = enemy
+        this.enemyContainer = enemyContainer
         this.button.x = 200;
         this.button.y = 500;
 
@@ -135,7 +135,7 @@ export class ButtonTeka extends Button{
 
     onClick(){
         this.deck.audit()
-        this.enemy.auditEnemy()
+        this.enemyContainer.allEnemyAudit()
         this.wsRoom.postImTeka()
         const card = []
         this.app.stage.sortChildren()
@@ -252,3 +252,19 @@ export class ButtonSwapPosition extends Button {
         this.wsRoom.postSwapPosition(this.number)
     }
 }
+
+export class ButtonPass extends Button {
+    constructor(app, wsRoom, text){
+        super(app, wsRoom, text)
+    }
+
+    onClick(){
+        console.log('ddd');
+        
+        this.wsRoom.postImPass()
+
+        this.removeFromStage()
+    }
+
+}
+

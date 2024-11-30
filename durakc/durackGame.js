@@ -36,7 +36,6 @@ export class DurackGame {
         this.mapCards.getDeck().forEach((card, key) => {            
             if (this.isInside(card)) {
                 this.cardsToZone.set(card.sprite.name, card);
-                console.log(key);
                 
                 this.mapCards.removeCardInDeck(key)
                 card.castomMuving = false
@@ -129,10 +128,13 @@ export class DurackGame {
         // Логіка розміщення карт у першій зоні
 
         if (index < this.cardPositions.length) {
-            let webSocket = new WsRoomDurack()
             gsap.to(e.sprite, { x: this.cardPositions[index].x, y: this.cardPositions[index].y, duration: 0.5 });
-            gsap.to(e.sprite.scale, { x: 0.4, y: 0.4, duration: 0.5 });  
-            webSocket.postCoordinatesCadsAtackP(this.cardPositions[index].x, this.cardPositions[index].y, e.sprite.name)      
+            gsap.to(e.sprite.scale, { x: 0.4, y: 0.4, duration: 0.5 }); 
+            if (e.atackMove){
+                let webSocket = new WsRoomDurack()
+                webSocket.postCoordinatesCadsAtackP(this.cardPositions[index].x, this.cardPositions[index].y, e.sprite.name)      
+                e.atackMove = false                
+            }
         }else{
             gsap.to(e.sprite, { x: 200, y: 500 });
 

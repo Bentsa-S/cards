@@ -9,9 +9,9 @@ import { EnemyPlayerController } from "./enemiPlayersController";
 
 
 export class MainControllerGame{
-    constructor(app, numberPlayer = 2, roomId = 1, user = '', userId = -1){
+    constructor(app, numberPlayer = 2, roomId = 1, user = '', userId = 0){
         this.app = app
-        this.WsRoom = new WsRoomDurack(numberPlayer, roomId)
+        this.WsRoom = new WsRoomDurack(numberPlayer, roomId, userId)
         this.cards
         this.numberPlayer = numberPlayer
         this.deckDurack = new DeckDurack(this.app);
@@ -19,7 +19,7 @@ export class MainControllerGame{
         this.enemyController = new EnemyPlayerController(this.app, this.numberPlayer, userId)
         this.deckDurack.addDeckToGame()
         this.gameZone = new DurackGame(this.app, this.deckDurack);
-        this.movePlayers = new MovePlayers(this.gameZone, this.deckDurack, this.enemyPlayer, this.app);
+        this.movePlayers = new MovePlayers(this.gameZone, this.deckDurack, this.enemyController, this.app);
         this.trun
 
 
@@ -56,7 +56,6 @@ export class MainControllerGame{
                 
             }else if (action === 'name'){
                 this.enemyController.addButtonSwapPosition(serverData.message.order)
-
                 if(this.enemyController.checkFullEnemy()){
                     const buttonReady = new ButtonReady(this.app, this.WsRoom, 'Ready')
                     buttonReady.addClick()
@@ -71,41 +70,23 @@ export class MainControllerGame{
             }else if(action === 'playerStatus'){
 
                 this.trun = serverData.message.playerStatus
-                if(this.trun == 1){
-                    this.gameZone.addZoneAtackPlayer()      
-                }else{
-                    this.gameZone.removeZoneAtackPlayer() 
-                }
-                // this.movePlayers.turn(this.trun, this.goat, serverData);
-                
+                this.movePlayers.turn(this.trun, this.goat, serverData);                
             }else if(action === 'atack'){
                 console.log(this.trun);
-                const buttonControler = new ButtonControler(this.app, this.WsRoom, this.gameZone, this.deckDurack, this.enemyPlayer)
-                buttonControler.addButton(serverData.message.type)
                 this.movePlayers.turn(this.trun, this.goat, serverData);
 
             }else if(action === 'def'){
                 this.movePlayers.turn(this.trun, this.goat, serverData);
-                const buttonControler = new ButtonControler(this.app, this.WsRoom, this.gameZone, this.deckDurack, this.enemyPlayer)
-                buttonControler.addButton(serverData.message.type)
 
             }else if(action === 'whipped'){
-                console.log('dddd');
                 this.gameZone.clearCardZone()
-                console.log(this.enemyPlayer.cardCount);
                 this.deckDurack.audit()
-                this.enemyPlayer.whippedMove(this.deckDurack);
-                this.enemyPlayer.auditEnemy()
+                this.enemyPlayer.whippedMove(this.deckDurack)
+                this.enemyController.allEnemyAudit();
             }else if(action === 'teka'){
-                // this.aaddd()
-                this.deckDurack.audit()
-                // this.enemyPlayer.auditEnemy()
-                
-                this.enemyPlayer.takeMove(this.deckDurack)
-                this.gameZone.clearCardZone()
-
-                
-                
+                this.deckDurack.audit()                
+                this.enemyController.moveTake(this.deckDurack, serverData.message.id)
+                this.gameZone.clearCardZone()                
             }else if(action === 'goat'){
                 this.deckDurack.addGoat(serverData.message.goat)
                 this.goat = serverData.message.goat

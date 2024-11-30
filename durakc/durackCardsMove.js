@@ -17,6 +17,7 @@ export class DraggableItem {
         this.direction = 0;
         this.zone = false
         this.castomMuving = true
+        this.atackMove = true
         this.goat
 
         this.sprite.anchor.set(0.5);

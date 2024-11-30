@@ -14,12 +14,38 @@ export class EnemyPlayerController{
         this.addEnemyPosition()
     }
 
-    addEnemy(number){
-        if(number < this.numberPlayers + 1){
-            const position = this.enemyPosition(number)
-        //     this.enemy.addEnemy(position.x, position.y)
-            this.enemy.addEnemy(position.x, position.y)
-        }
+    moveCards(x, y, texture, nameCards, id, rotation = 0){
+        this.enemyContainer.forEach((enemy, name) => {
+            if (enemy.userId === id){
+                enemy.moveCardsEnemy(x, y, texture, nameCards, rotation)
+                enemy.createCardIcons()  
+                return true
+            }
+        })
+    }
+
+    moveWhipped(deck, id){
+        this.enemyContainer.forEach((enemy, name) => {
+            if (enemy.userId === id){
+                enemy.whippedMove(deck)
+                return true
+            }
+        })
+    }
+
+    moveTake(deck, id){
+        this.enemyContainer.forEach((enemy, name) => {
+            if (enemy.userId === id){
+                enemy.takeMove(deck)
+                return true
+            }
+        })
+    }
+
+    allEnemyAudit(){
+        this.enemyContainer.forEach(enemy => {
+            enemy.auditEnemy()
+        })
     }
 
     addButtonSwapPosition(players){
@@ -29,25 +55,28 @@ export class EnemyPlayerController{
         const index = players.findIndex(player => player.id === this.userId);
 
         if (index !== -1) {
-
-            const after = index + 1 < players.length ? players.slice(index + 1) : [] ; // Після index
-            const before = players.slice(0, index + 1); // Включаючи index
-        
-            sortedPlayers = [...after, ...before];
-            sortedPlayers.pop(); // Видаляємо останній елемент
-        
-            console.log("After:", after);
-            console.log("Before:", before);
+            console.log(index);
+            
+            if (players.length === index){
+                sortedPlayers.pop();
+            }else{
+                const after =  players.slice(index + 1); // Після index
+                const before = players.slice(0, index + 1); // Включаючи index
+            
+                sortedPlayers = [...after, ...before];
+                sortedPlayers.pop();
+    
+            }
             console.log("Sorted players:", sortedPlayers);
         }
                 // Перебір об'єкта players
-
+        this.enemyContainer.clear()
         for (let i = 1; i < sortedPlayers.length + 1; i++) {
             const player = sortedPlayers[i - 1];
             
             if (player.user) {
                 const position = this.enemyPosition[i];
-                const enemy = new EnemyPlayer(this.app);
+                const enemy = new EnemyPlayer(this.app, player.id);
                 enemy.addName(player.name);
                 enemy.cardCount = 6;
                 enemy.createCardIcons();
@@ -67,7 +96,7 @@ export class EnemyPlayerController{
         }
 
         console.log(this.enemyContainer);
-        
+
     }
 
     clearEnemyContainer() {
@@ -83,6 +112,8 @@ export class EnemyPlayerController{
     }
         
     checkFullEnemy() {
+        console.log(this.enemyContainer);
+        
         const allAreEnemyPlayers = Array.from(this.enemyContainer.values()).every(
             (enemy) => enemy instanceof EnemyPlayer
         );
@@ -92,6 +123,7 @@ export class EnemyPlayerController{
             return false
         }
     }
+
         addEnemyPosition(){  
         console.log(this.numberPlayers);
               

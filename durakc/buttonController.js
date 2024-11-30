@@ -1,13 +1,14 @@
-import { ButtonTeka, ButtonWhipped } from "./button";
+import { ButtonPass, ButtonTeka, ButtonWhipped } from "./button";
 
 
 export class ButtonControler {
-    constructor(app, wsRom, gameZone, deck, enemy){
+    constructor(app, wsRom, gameZone, deck, enemyContainer, number){
         this.app = app
         this.wsRom = wsRom
-        this.teka = new ButtonTeka(app, wsRom, 'Беру', deck, enemy)
+        this.number = number
+        this.teka = new ButtonTeka(app, wsRom, 'Беру', deck, enemyContainer)
         this.whipped = new ButtonWhipped(app, wsRom, 'Бито', gameZone, deck)
-
+        this.pass = new ButtonPass(app, wsRom, 'Пасс')
         document.addEventListener('mouseup', this.handleMouseUp.bind(this));
     }
 
@@ -16,9 +17,19 @@ export class ButtonControler {
             this.teka.addClick()
             this.teka.addToStage();
         } else if (action === 'def') {
-            this.whipped.addClick()
-            this.whipped.addToStage();
+            if (this.number === 4){
+                this.pass.addClick()
+                this.pass.addToStage()
+            }else{
+                this.whipped.addClick()
+                this.whipped.addToStage();
+            }
         }
+    }
+
+    addButtonPass(){
+        this.pass.addClick()
+        this.pass.addToStage()
     }
 
     remoweButton() {

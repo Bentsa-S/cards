@@ -3,15 +3,25 @@
 
 export class WsRoomDurack{
     static socket;
-    
+    static userId;
+
+
     static getSocket(numberPlayer = 0, roomId = 0) {
         if (!this.socket) {
             this.socket = new WebSocket(`ws://127.0.0.1:8000/durack/${numberPlayer}/${roomId}/`);
         }
         return this.socket;
     }
-    constructor(numberPlayer = 0, roomId = 0) {
+
+    static getUserId(id){
+        if (!this.userId){
+            this.userId = id
+        }
+        return this.userId
+    }
+    constructor(numberPlayer = 0, roomId = 0, userId = 0) {
         this.socket = WsRoomDurack.getSocket(numberPlayer, roomId);
+        this.userId = WsRoomDurack.getUserId(userId)
     }
 
     // getSocket(numberPlayer = 0, roomId = 0){
@@ -34,6 +44,7 @@ export class WsRoomDurack{
             }));
         })
     }
+
     postReady() {
         console.log(1);
         if (this.socket.readyState === WebSocket.OPEN) {
@@ -44,6 +55,7 @@ export class WsRoomDurack{
             console.log("WebSocket is not open yet");
         }
     }
+
     postSwapPosition(number){
         const message = {
             type: 'swap',
@@ -57,6 +69,7 @@ export class WsRoomDurack{
         const message = {
             type: 'atack',
             name: name,
+            id: this.userId,
             coordinates: {
                 x: x,
                 y: y
@@ -77,6 +90,7 @@ export class WsRoomDurack{
         const message = {
             type: 'def',
             name: name,
+            id: this.userId,
             coordinates: {
                 x: x,
                 y: y
@@ -88,14 +102,23 @@ export class WsRoomDurack{
     postImTeka(){
         const message = {
             type: 'teka',
+            id: this.userId,
         };
         WsRoomDurack.socket.send(JSON.stringify(message));
 
     }
 
+    postImPass(){
+        const message = {
+            type: 'pass',
+            id: this.userId,
+        };
+        WsRoomDurack.socket.send(JSON.stringify(message));
+    }
     postWhipped(){
         const message = {
             type: 'whipped',
+            id: this.userId,
         };
         WsRoomDurack.socket.send(JSON.stringify(message));
 
