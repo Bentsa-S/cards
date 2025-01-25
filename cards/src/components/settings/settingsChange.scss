@@ -1,0 +1,88 @@
+@use "sass:color";
+
+
+:root {
+    --primary-color: #333;
+    --opasiti-primari-color:rgba(102, 102, 102, .3);
+    --secondary-color: #C66969;
+    --opasiti-secondary-color: rgba(205, 136, 135, 0.5);
+    --font-color: #ecf0f1;
+    --background-img: url('../../assets/desktop/darck/black-background.jpg');
+
+}
+  
+[data-theme='dark'] {
+    --primary-color: #333;
+    --opasiti-primari-color: rgba(102, 102, 102, .3);
+    --font-color: #ecf0f1;
+
+    --demo-red: #C66969;
+    --demo-blue: #5A9CAF;
+    --demo-green: #ABC669;
+
+    --demo-background1: url('../../assets/desktop/darck/black-background.jpg');
+    --demo-background2: url('../../assets/desktop/darck/sky.jpg');
+}
+  
+[data-theme='light'] {
+    --primary-color: #ecf0f1;
+    --opasiti-primari-color: rgba(102, 102, 102, .3);
+    --font-color: #333;
+
+    --demo-red: #713F3F;
+    --demo-blue: #305964;
+    --demo-green: #62713C;
+
+    --demo-background1: url('../../assets/desktop/light/plaints.jpeg');
+    --demo-background2: url('../../assets/desktop/light/abstract.jpg');
+}
+
+[button-theme='red-dark']{
+    --secondary-color: #C66969;
+    --opasiti-secondary-color: rgba(205, 136, 135, 0.5);
+}
+
+[button-theme='blue-dark']{
+    --secondary-color: #5A9CAF;
+    --opasiti-secondary-color: rgba(109, 169, 210, 0.5);
+}
+
+[button-theme='green-dark']{
+    --secondary-color: #ABC669;
+    --opasiti-secondary-color: rgba(196, 218, 144, 0.5);
+}
+
+[button-theme='red-light']{
+    --secondary-color: #713F3F;
+    --opasiti-secondary-color: rgba(205, 136, 135, 0.5);
+}
+
+[button-theme='blue-light']{
+    --secondary-color: #305964;
+    --opasiti-secondary-color: rgba(109, 169, 210, 0.5);
+}
+
+[button-theme='green-light']{
+    --secondary-color: #62713C;
+    --opasiti-secondary-color: rgba(196, 218, 144, 0.5);
+}
+
+[background-theme='1-light']{
+    --background-img: url('../../assets/desktop/light/plaints.jpeg');
+}
+
+[background-theme='2-light']{
+    --background-img: url('../../assets/desktop/light/abstract.jpg');
+}
+
+[background-theme='1-dark']{
+    --background-img: url('../../assets/desktop/darck/black-background.jpg');
+}
+
+[background-theme='2-dark']{
+    --background-img: url('../../assets/desktop/darck/sky.jpg');
+}
+
+
+
+  

@@ -1,0 +1,114 @@
+@use "../settings/settingsChange";
+
+
+.navigation {
+    position: absolute;
+    width: 100vw;
+    height: 60px;
+    background: var(--secondary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 10px;
+    box-sizing: border-box;
+    overflow-x: clip;
+    bottom: 0;
+    margin: 0;
+    left: 0;
+
+    ul {
+        width: 100vw;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0;
+
+        li {
+            display: flex;
+            height: 60px;
+            z-index: 2;
+
+            a {
+                text-decoration: none;
+                color: #555;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+
+                .icon {
+                    display: block;
+                    width: 55px;
+                    height: 55px;
+                    text-align: center;
+                    line-height: 65px;
+                    border-radius: 65px;
+                    color: #222327;
+                    font-size: 1.5em;
+                    transition: 0.5s;
+                    transition-delay: 0s;
+
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        top: 10px;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: var(--clr);
+                        border-radius: 50%;
+                        filter: blur(5px);
+                        opacity: 0;
+                        transition: 0.5s;
+                        transition-delay: 0.15s;
+                    }
+                }
+
+                &.active {
+                    .icon {
+                        background: var(--clr);
+                        color: var(--secondary-color);
+                        transform: translateY(-27px);
+                        transition-delay: 0.25s;
+
+                        &:before {
+                            opacity: 0.5;
+                            transition-delay: 0.25s;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .indicator {
+        position: absolute;
+        top: -35px;
+        width: 80px;
+        height: 80px;
+        background: var(--secondary-color);
+        border-radius: 50%;
+        border: #222327 10px solid;
+        z-index: 1;
+        transition: 0.5s;
+        box-sizing: border-box;
+    }
+
+    .triangle {
+        position: absolute;
+        height: 50px;
+        transition: 0.5s;
+        bottom: 30px;
+        margin-left: 62px;
+
+        path {
+            fill: var(--secondary-color);
+        }
+
+        &.flipped {
+            margin-left: -62px;
+
+        }
+    }
+}

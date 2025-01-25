@@ -1,0 +1,38 @@
+.game-selection {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    bottom: 120px;
+    justify-content: space-around;
+    // margin-top: 20px;
+
+    .button-create-nav {
+        width: 40vw;
+        background: var(--opasiti-primari-color);
+        color: var(--font-color);
+        border: none;
+        padding: 5px 10px;
+        border-radius: 0px;
+        cursor: pointer;
+        outline: none;
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      
+        &.active {
+          background: var(--secondary-color);
+        }
+        .button-create-nav.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+          
+    }
+      
+}
