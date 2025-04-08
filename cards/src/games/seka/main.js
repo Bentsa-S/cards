@@ -1,7 +1,6 @@
 import { MovePlayers } from './movePlayers';
-import { ButtonPutch, ButtonReady } from "./button";
+import { ButtonReady } from "./button";
 import { EnemyPlayer } from "./enemyPlayer";
-import { ButtonControler } from "./buttonController";
 import { EnemyPlayerController } from "./enemiPlayersController";
 import { SekaDeck } from "./sekaDeck";
 import { SekaGame } from "./sekaGame";
@@ -38,6 +37,7 @@ export class MainControllerGame{
         this.trun
         this.b
         this.infoTable
+        this.cardFlip = false
 
         this.goat
 
@@ -46,23 +46,11 @@ export class MainControllerGame{
     }
 
     start(){
-        
         this.WsRoom.postUser(this.user, this.userId)
-        // this.gameZone.createSlider()
-        // this.gameZone.createPrintCards() 
-        // this.gameZone.flipCards()
-        // this.gameZone.createPrintCards() 
-
-
-        console.log(1);
         
         this.WsRoom.socket.onmessage = (event) => {
             const serverData = JSON.parse(event.data)
-            const action = serverData.message.type
-            // if(!serverData.message.type){
-            //     serverData.cards.type = ' '
-            // }
-        
+            const action = serverData.message.type        
             console.log(serverData.message);
             if(action === 'cards'){ 
                 this.deckSeka.givCards(serverData.message.players, serverData.message.cards);
@@ -80,8 +68,6 @@ export class MainControllerGame{
                     buttonReady.addClick()
                     buttonReady.addToStage()            
                 }
-                // this.enemyPlayer.addName(serverData.message.name)
-                // this.enemyPlayer.addEnemy(400, 60)
             }else if(action === 'swap'){
                 this.enemyController.clearEnemyContainer()
                 this.enemyController.addButtonSwapPosition(serverData.message.swap)
@@ -89,7 +75,7 @@ export class MainControllerGame{
             }else if(action === 'playerStatus'){
 
                 this.trun = serverData.message.playerStatus
-                this.movePlayers.turn(this.trun, this.goat, serverData);                
+                this.movePlayers.turn(this.trun, this.bet);                
             }else if(action === 'putch'){
                 this.gameZone.numberPutch = serverData.message.message                
                 this.gameZone.swapCards(serverData.message.card)
@@ -98,10 +84,43 @@ export class MainControllerGame{
             }else if(action === 'prise'){
                 this.b.updateText(serverData.message.prise)
             }else if(action === 'apdateTable'){
-                this.infoTable.updateBankText(serverData.message.bank)
-                this.infoTable.updateBetText(serverData.message.bet)
+                this.bet = serverData.message.bet
+                this.infoTable.updateBankText(`банк: ${serverData.message.bank}`)
+                this.infoTable.updateBetText(`ставка: ${serverData.message.bet}`)
+            }else if(action === 'cardFlip'){
+                this.movePlayers.removeButtonBlack()
+            }else if(action === 'pass'){
+                this.enemyController.enemyPass(serverData.message.id)
+            }else if(action === 'look'){                
+                this.enemyController.lookEnemyCards(serverData.message.id_loos, serverData.message.id_win, serverData.message.cards, serverData.message.loos)
+                this.deckSeka.flipAllCards()
+
+                if (!serverData.message.loos) {
+                    setTimeout(() => {
+                        this.deckSeka.loseAnimation();
+                    }, 3000);
+                }
+            }else if(action === 'hideOpponentButton'){                
+                this.movePlayers.addButtonHideOpponent()
+            }else if(action === 'win'){   
+                setTimeout(() => {
+                    if(serverData.message.id == this.userId){
+                        this.gameZone.winPlayer()
+                    }else{
+                        this.enemyController.animationWinEnemy(serverData.message.id)
+                    }
+    
+                }, 3200);
+            }else if(action === 'restart'){
+                this.deckSeka.removeCards()
+                this.enemyController.removeCardsEnemy()
+                if(this.enemyController.checkFullEnemy()){
+                    const buttonReady = new ButtonReady(this.app, this.WsRoom, 'Ready')
+                    buttonReady.addClick()
+                    buttonReady.addToStage()            
+                }
             }
-        }
+    }
         
 
     }    

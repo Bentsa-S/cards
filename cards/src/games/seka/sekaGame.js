@@ -1,7 +1,8 @@
-import { Graphics, Text, TextStyle, Sprite } from "pixi.js";
+import { Graphics, Text, TextStyle, Sprite, Container } from "pixi.js";
 import gsap from "gsap";
-import { cardBacks } from "../textures/textures";
+import { cardBacks, crown } from "../textures/textures";
 import { WsRoomSeka } from "./wsRoomSeka";
+import { CardsMove } from "./cardsMove";
 
 export class SekaGame {
     constructor(app, deckSeka) {
@@ -19,6 +20,63 @@ export class SekaGame {
 
     }
 
+    winPlayer() {
+        this.deckSeka.loseAnimation();
+    
+        const crownSprite = new Sprite(crown);
+        crownSprite.anchor.set(0.5);
+        crownSprite.scale.set(0);
+        crownSprite.x = this.app.screen.width / 2;
+        crownSprite.y = this.app.screen.height / 2;
+        this.app.stage.addChild(crownSprite);
+    
+        const raysContainer = new Container();
+        raysContainer.x = crownSprite.x;
+        raysContainer.y = crownSprite.y;
+        this.app.stage.addChild(raysContainer);
+    
+        const numRays = 8;
+        const rayLength = 1000;
+    
+        for (let i = 0; i < numRays; i++) {
+            const angle = (i / numRays) * Math.PI * 2;
+            const ray = new Graphics();
+    
+            ray.beginFill(0x8a2be2, 0.1);
+            ray.drawPolygon([0, 0, rayLength / 3, -rayLength, -rayLength / 3, -rayLength]);
+            ray.endFill();
+    
+            ray.alpha = 0;
+            ray.x = Math.cos(angle) * 30;
+            ray.y = Math.sin(angle) * 30;
+            ray.rotation = angle;
+            raysContainer.addChild(ray);
+    
+            gsap.to(ray, { alpha: 0.4, duration: 0.8, delay: 0.5 + i * 0.1 });
+        }
+    
+        gsap.to(crownSprite.scale, { x: 0.15, y: 0.15, duration: 0.7, ease: "bounce.out" });
+        gsap.to(raysContainer, { rotation: Math.PI * 2, duration: 3, repeat: -1, ease: "linear" });
+    
+        gsap.to([crownSprite, raysContainer], {
+            y: this.app.screen.height - 150,
+            duration: 2,
+            delay: 2,
+            ease: "power2.in",
+            onComplete: () => {
+                gsap.to([crownSprite, raysContainer], { alpha: 0, duration: 1, onComplete: () => {
+                    this.app.stage.removeChild(crownSprite);
+                    this.app.stage.removeChild(raysContainer);
+                }});
+
+                let ws = new WsRoomSeka()
+                ws.restart()
+
+            }
+        });
+    }
+        
+        
     
     createPrintCards(interactive = true) {
         const centerX = this.app.renderer.width / 2;
@@ -26,38 +84,38 @@ export class SekaGame {
 
         for (let i = 0; i < 4; i++) {
             const ws = new WsRoomSeka()
-            const card = new Sprite(cardBacks);
-            card.interactive = interactive
-            card.anchor.set(0.5);
-            card.scale.set(0.5);
-            card.position.set(centerX, centerY);
-            card.interactive = true;
-            card.buttonMode = true;
+            const card = new CardsMove(cardBacks, `card${i}`, this.app);
+            card.sprite.interactive = interactive
+            card.sprite.anchor.set(0.5);
+            card.sprite.scale.set(0.5);
+            card.sprite.position.set(centerX, centerY);
+            card.sprite.interactive = true;
+            card.sprite.buttonMode = true;
 
-            card.on('pointerdown', () => this.animateCard(card));
-            card.on('pointerdown', () => ws.postTake());
+            card.sprite.on('pointerdown', () => this.animateCard(card));
+            card.sprite.on('pointerdown', () => ws.postTake());
 
             this.cards.set(`card${i}`, card)
-            this.app.stage.addChild(card);
+            this.app.stage.addChild(card.sprite);
         }
     }
 
     flipCards() {
         let first = true        
         this.cards.forEach(card => {
-            card.interactive = false
-            gsap.to(card.scale, {
-                y: 0.1,
+            card.sprite.interactive = false
+            gsap.to(card.sprite.scale, {
+                y: 0.09,
                 onComplete: () => {                      
                     if ( first ){
                         for (let col = 0; col < 10; col++) {
                             const line = new Graphics();
                             line.beginFill(0x888888);
-                            line.drawRect(0, 0, 115, 2);
+                            line.drawRect(0, 0, 146, 2);
                             line.endFill();
                         
-                            line.x = card.x - card.width / 2;
-                            line.y = card.y + card.height - 15 + 3 * col;
+                            line.x = card.sprite.x - card.sprite.width / 2;
+                            line.y = card.sprite.y + card.sprite.height - 20 + 3 * col;
                         
                             this.horizontalCards.set(`line${col}`, line);
                             this.app.stage.addChild(line);
@@ -86,7 +144,6 @@ export class SekaGame {
 
     swapCards(cardName) {
         const timeline = gsap.timeline();
-        console.log(cardName);
         
         this.deckSeka.getFullDeck().forEach((card, name) => {
 
@@ -97,7 +154,6 @@ export class SekaGame {
     
                 if (value < 10){
                     // card.sprite.interactive = false
-                    console.log(card);
                     card.spaunThisSprite(300, 300)                    
                     card.originalTexture = card.sprite.texture;
         
@@ -123,7 +179,7 @@ export class SekaGame {
         
                     timeline.to(card.sprite, { x: card.sprite.x - 70, duration: 0.5 }, 0);
                     this.cards.forEach(c => {
-                        timeline.to(c, { x: c.x + 70, duration: 0.5 }, 0);
+                        timeline.to(c.sprite, { x: c.sprite.x + 70, duration: 0.5 }, 0);
                     });
         
                     // Додаємо затримку перед фазою 2
@@ -144,7 +200,7 @@ export class SekaGame {
         
                     timeline.to(card.sprite, { y: card.sprite.y - ( 10 - value ) * 6 - ( value - 10 ) * 2 - 5, duration: 0.5 }, 0.5);
                     this.cards.forEach(c => {
-                        timeline.to(c, { y: c.y + value * 3, duration: 0.5 }, 0.5);
+                        timeline.to(c.sprite, { y: c.sprite.y + value * 3, duration: 0.5 }, 0.5);
                     });
     
     
@@ -163,12 +219,12 @@ export class SekaGame {
     
                 timeline.to(card.sprite, { x: x, duration: 0.5 }, 1);
                 this.cards.forEach(c => {
-                    timeline.to(c, { x: x, duration: 0.5 }, 1);
+                    timeline.to(c.sprite, { x: x, duration: 0.5 }, 1);
                 });
                 setTimeout(() => {
                     card.zIndex = 4
                     this.cards.forEach(c => {
-                        this.app.stage.removeChild(c);
+                        this.app.stage.removeChild(c.sprite);
                     });
                     if ( value == 10 ){
                         card.sprite.scale.y = 1
@@ -267,7 +323,7 @@ export class SekaGame {
         if (this.label) {
             this.app.stage.removeChild(this.label);
         }
-        this.line = null;
+        this.line = new Graphics();
         this.handle = null;
         this.cloud = null;
         this.label = null;
@@ -344,7 +400,7 @@ export class SekaGame {
                     } else {
                         card.beginFill(0x888888);
                     }
-                    card.drawRect(0, 0, 115, 2);
+                    card.drawRect(0, 0, 146, 2);
                     card.endFill();
                     index++
                 });

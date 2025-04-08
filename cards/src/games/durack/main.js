@@ -51,6 +51,7 @@ export class MainControllerGame{
                 this.deckDurack.addPlayerCards(serverData.message.cards);
                 this.enemyController.getAllEnemyCards()
                 this.transparentRectangleWithText.keepOnTop()
+                this.deckDurack.addAnmationCards()
                 // deckDurack.addItemDeckCards('10Spades')
                 
                 // deckDurack.addGoat()

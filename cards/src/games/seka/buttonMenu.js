@@ -1,7 +1,7 @@
 import { Graphics, Text, TextStyle } from "pixi.js";
 
 export class ButtonMenu {
-    constructor(app, options = [], sliderMin = 0, sliderMax = 100) {
+    constructor(app) {
         this.app = app;
         this.buttons = [];
         this.container = new Graphics();
@@ -14,22 +14,48 @@ export class ButtonMenu {
         });
 
         this.slider = null; // Слайдер поки не створено
-        this.sliderMin = sliderMin; // Мінімальне значення слайдера
-        this.sliderMax = sliderMax; // Максимальне значення слайдера
-
         // Додати білий фон для всього меню
+    }
+
+    addManu(options = [], sliderMin = 0, sliderMax = 100) {
+        this.sliderMin = sliderMin;
+        this.sliderMax = sliderMax;
+    
         this.background = new Graphics();
         this.container.addChild(this.background);
-
-        // Ініціалізація кнопок, якщо вони передані
+    
+        // Ініціалізація кнопок
         this.addSlider();
         options.forEach((opt) => this.addButton(opt.label, opt.callback));
-
+    
         // Оновити позицію меню та розміри фону
         this.updatePosition();
         this.updateBackground();
+    
+        // Завжди переміщує контейнер меню в кінець масиву дітей сцени (тобто на верхній шар)
+        this.app.stage.addChild(this.container);
     }
 
+    removeMenu() {
+        // Видаляємо всі кнопки
+        while (this.buttons.length > 0) {
+            this.removeButton();
+        }
+    
+        // Видаляємо слайдер, якщо він існує
+        if (this.slider) {
+            this.slider.handle.destroy();
+            this.slider.line.destroy();
+            this.slider.label.destroy();
+            this.slider = null; // Очищуємо слайдер
+        }
+    
+        // Видаляємо фон
+        this.background.destroy();
+        this.background = null; // Очищуємо фон
+    }
+    
+    
     // Додає кнопку до меню
     addButton(label, callback) {
         const buttonHeight = 30; // Висота кнопки
@@ -96,6 +122,9 @@ export class ButtonMenu {
         this.container.addChild(sliderHandle);
 
         // Лейбл для слайдера (показує значення)
+        console.log(this.sliderMax);
+        console.log(this.sliderMin);
+        
         const label = new Text(
             this.sliderMin.toString(),
             new TextStyle({
@@ -143,11 +172,13 @@ export class ButtonMenu {
                     if (localPosition.y >= minY && localPosition.y <= maxY) {
                         sliderHandle.y = localPosition.y;
 
+                        this.sliderMin = Number(this.sliderMin);
+                        this.sliderMax = Number(this.sliderMax);                        
                         // Переводимо координати ручки в значення слайдера
                         const value = Math.round(
                             this.sliderMin +
-                                ((maxY - sliderHandle.y) / sliderLineHeight) *
-                                    (this.sliderMax - this.sliderMin)
+                            ((maxY - sliderHandle.y) / sliderLineHeight) *
+                            (this.sliderMax - this.sliderMin)
                         );
                         label.text = value.toString();
                     }
@@ -177,8 +208,8 @@ export class ButtonMenu {
 
     // Оновлює позицію меню на екрані
     updatePosition() {
-        this.container.x = 50; // Відступ зліва
-        this.container.y = this.app.renderer.height - this.container.height - 100; // Розташування внизу екрана з відступом
+        this.container.x = this.app.renderer.width - this.container.width; // Відступ справа
+        this.container.y = this.app.renderer.height - this.container.height - 100; // Відступ знизу
     }
 
     // Оновлює фон меню

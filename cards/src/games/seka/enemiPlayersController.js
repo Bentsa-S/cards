@@ -41,6 +41,10 @@ export class EnemyPlayerController{
                 this.enemyContainer.set(player.id, enemy)
             } else {
                 const position = this.enemyPosition[i];
+                console.log(i);
+                console.log(this.enemyPosition[i]);
+                
+                
                 const button = new ButtonSwapPosition(this.app, this.wsRoom, player.number, position.x, position.y, player.number);
                 button.addClick()
                 button.addToStage();
@@ -55,10 +59,36 @@ export class EnemyPlayerController{
             if (enemy[1].userId === id) {
                 
                 enemy[1].cardCount += 1;
-                await enemy[1].createCardIcons(); // Очікуємо завершення анімації
+                await enemy[1].createCardIcons();
             }
         }
     }
+
+    async lookEnemyCards(idLoos, idWin, cards, loos) {
+        let id = (idLoos === this.userId) ? idWin : idLoos;
+        for (const enemy of this.enemyContainer) {
+            if (enemy[1].userId === id) {
+                await enemy[1].lookCards(cards, loos);
+            }
+        }
+    }
+
+    async animationWinEnemy(id){
+        for (const enemy of this.enemyContainer) {
+            if (enemy[1].userId === id) {
+                console.log(111);
+                
+                await enemy[1].win();
+            }
+        }
+    }
+
+    async removeCardsEnemy(){
+        this.enemyContainer.forEach(enemy => {
+            enemy.removeCards()
+        })
+    }
+
     clearEnemyContainer() {
         this.enemyContainer.forEach((value, key) => {
             this.enemyContainer.delete(key);
@@ -89,6 +119,15 @@ export class EnemyPlayerController{
         })
     }
 
+    enemyPass(id){
+        this.enemyContainer.forEach(enemy => {
+            console.log(enemy.id);
+            
+            if( id == enemy.userId ){
+                enemy.pass()
+            }
+        })
+    }
     addEnemyPosition(){  
               
         switch (this.numberPlayers - 1) {

@@ -1,6 +1,8 @@
 import { Sprite } from "pixi.js";
 import gsap from "gsap";
 import { cardBacks } from "../textures/textures";
+import { WsRoomSeka } from "./wsRoomSeka";
+
 
 export class CardsMove {
     static flip = true
@@ -37,6 +39,12 @@ export class CardsMove {
         this.interactive = true;
     }
 
+    removeCardLeft() {
+        gsap.to(this.sprite, { x: -this.sprite.width, duration: 1, onComplete: () => {
+            this.app.stage.removeChild(this.sprite); // Видалити карту зі сцени
+        } });
+    }
+    
     async addAppThisChaild(x = 300, y = 500) {
         this.firstPositionX = x;
         this.firstPositionY = y;
@@ -66,7 +74,8 @@ export class CardsMove {
 
         if (this.flipCount === 0) {
             if (flag){
-                CardsMove.flip = false
+                const ws = new WsRoomSeka()
+                ws.postFlipBleack()
             }
             gsap.to(this.sprite.scale, {
                 x: 0,
@@ -118,21 +127,22 @@ export class CardsMove {
         this.flipCount++;
     }
 
-    flipToBeack() {
+    flipToBeack(scaleCard = 0.5) {
         this.sprite.interactive = false
         gsap.to(this.sprite.scale, {
             x: 0,
             duration: 0.3,
             onComplete: () => {
-                this.sprite.texture = cardBacks;
+            this.sprite.texture = cardBacks;
                 gsap.to(this.sprite.scale, {
-                    x: 0.5,
-                    y: 0.5,
+                    x: scaleCard,
+                    y: scaleCard,
                     duration: 0.3,
                     onComplete: () => {
                         this.isAnimating = false;
                     }
-                });
+                });    
+        
             },
         });
     }

@@ -34,7 +34,7 @@ for (let card of cardImages) {
 // Завантаження ресурсів
 export const cardBacks = await Assets.load(new URL('../../assets/durack/card.png', import.meta.url).href);
 export const userImg = await Assets.load(new URL('../../assets/durack/iconeUser.png', import.meta.url).href);
-
+export const crown = await Assets.load(new URL('../../assets/items/crown.png', import.meta.url).href)
 // Додаємо карти в бандл
 Assets.addBundle('deckThirtySixCards', deckThirtySixCardsKey);
 

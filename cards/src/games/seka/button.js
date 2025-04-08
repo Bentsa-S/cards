@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js';
 import { ButtonMenu } from './buttonMenu';
+import { WsRoomSeka } from './wsRoomSeka';
+import gsap from 'gsap';
+import { reactHooks } from 'eslint-plugin-react-hooks';
 
 export class Button {
     constructor(app, wsRoom, text) {
@@ -80,17 +83,38 @@ export class ButtonReadyTake extends Button{
 
 
 export class ButtonPass extends Button {
-    constructor(app, wsRoom, text){
+    constructor(app, wsRoom, text, deckSeka){
         super(app, wsRoom, text)
         this.button.x = 15;
+        this.deckSeka = deckSeka
         this.button.y = this.app.screen.height - this.button.height - 15;
     }
 
     onClick(){        
         this.wsRoom.postImPass()
         this.removeFromStage()
+
+        this.deckSeka.deck.forEach(card => {
+            card.flipToBeack(0.2)
+            gsap.to(card.sprite, { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+        });
     }
 
+}
+
+export class ButtonHideOpponent extends Button{
+    
+    constructor(app, wsRoom, text){
+        super(app, wsRoom, text)
+        this.wsRoom = wsRoom
+        this.button.x = (this.app.screen.width - this.button.width) / 2;
+        this.button.y = this.app.screen.height - this.button.height - 15;
+        
+    }
+
+    onClick() { 
+        this.wsRoom.postLookCards()
+    }   
 }
 
 
@@ -119,17 +143,42 @@ export class ButtonUp extends Button{
         
     }
 
-    onClick() {         
-        const menu = new ButtonMenu(this.app, [
-            { label: "All-in", callback: () => console.log("All-in clicked") },
-            { label: "Pot 100%", callback: () => console.log("Pot 100% clicked") },
-            { label: "+2 BB", callback: () => console.log("+2 BB clicked") },
-        ], 10, 100);
-    }   
+    addClick(minBet, maxBet, menu, buttons) {
+        this.button.on('pointerdown', () => this.onClick(minBet, maxBet, menu, buttons));
+    }
+
+    onClick(minBet, maxBet, menu, buttons) {   
+        const adjustedMaxBet = Math.min(maxBet, minBet * 2);
+        const ws = new WsRoomSeka()
+        menu.addManu([
+            { label: `${maxBet}`, callback: () => { 
+                this.remoweButtons(buttons); 
+                menu.removeMenu();
+                ws.postUpBet(maxBet) 
+            }},
+            { label: `${adjustedMaxBet}`, callback: () => { 
+                this.remoweButtons(buttons); 
+                menu.removeMenu();
+                ws.postUpBet(adjustedMaxBet) 
+            }},
+            { label: "поставити", callback: () => { 
+                this.remoweButtons(buttons); 
+                menu.removeMenu(); 
+                ws.postUpBet(menu.slider.label.text)
+            }},
+        ], minBet, maxBet);
+    }
+        
+    remoweButtons(buttons) {
+        buttons.forEach(button => {
+            button.removeFromStage();
+            button.button.off('pointerdown');
+        });
+    }
+
 }
 
 export class ButtonBlack extends Button{
-    
     constructor(app, wsRoom, text){
         super(app, wsRoom, text)
         this.wsRoom = wsRoom
@@ -139,7 +188,7 @@ export class ButtonBlack extends Button{
     }
 
     onClick() { 
-        this.wsRoom.postWhipped() 
+        this.wsRoom.postBleack() 
     }   
 }
 

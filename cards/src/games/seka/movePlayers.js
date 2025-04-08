@@ -5,21 +5,27 @@ import { ButtonControler } from './buttonController';
 
 
 export class MovePlayers{
-    constructor(classGame, deckDurack, enemyContainer, app){
+    constructor(classGame, deckSeka, enemyContainer, app){
         this.gameZona = classGame
-        this.deckDurack = deckDurack
+        this.deckSeka = deckSeka
         this.app = app
         this.enemyContainer = enemyContainer
         this.WsRoom = new WsRoomSeka()
         this.buttonReadyTake = new ButtonReadyTake(this.app, this.WsRoom, 'Почати')
         this.buttonPutch = new ButtonPutch(this.app, this.WsRoom, 'putch', this.gameZona)
-        this.buttonControler = new ButtonControler(this.app, this.WsRoom)
+        this.buttonControler = new ButtonControler(this.app, this.WsRoom, this.deckSeka)
 
     }
 
+    addButtonHideOpponent(){
+        this.buttonControler.buttonHideOpponent = true
+    }
 
-    turn(number, goat, serverData){
-        const json = serverData.message
+    removeButtonBlack(){
+        this.buttonControler.removeButtonBlack()
+    }
+
+    turn(number, bet){
         switch (number) {
             case 2:
                 this.gameZona.createPrintCards(false) 
@@ -43,7 +49,7 @@ export class MovePlayers{
 
             break;
             case 5:
-                this.buttonControler.addButtons()
+                this.buttonControler.addButtons(bet, 100)
 
             break;
             case 6:

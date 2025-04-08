@@ -1,6 +1,8 @@
 import { deckThirtySixCards } from "../textures/textures";
 import { cardImages } from "../textures/textures";
 import { CardsMove } from './cardsMove';
+import gsap from "gsap";
+
 
 export class SekaDeck{
     constructor(app, enemyController, idUser){
@@ -52,6 +54,32 @@ export class SekaDeck{
             this.deckGame.set(name, item);
         }
     }
+
+    removeCards(){
+        this.deck.forEach(card => {
+            card.removeCardLeft()
+        })
+        this.deck = new Map()        
+    }
+
+
+    loseAnimation(){
+        this.deck.forEach(card => {
+            card.flipToBeack(0.2)
+            gsap.to(card.sprite, { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+        });
+
+    }
+
+    flipAllCards(){
+        this.deck.forEach(card => {
+            if (card.flipCount < 1){
+                card.handleFlip()
+            }
+        })
+    }
+
+
 
     removeCardInDeck(key){
         this.deck.delete(key)

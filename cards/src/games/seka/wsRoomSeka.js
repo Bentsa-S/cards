@@ -104,6 +104,19 @@ export class WsRoomSeka{
         WsRoomSeka.socket.send(JSON.stringify(message));
     }
     
+    postBleack(){
+        const message = {
+            type: 'upBetToBleack',
+        };
+        WsRoomSeka.socket.send(JSON.stringify(message));
+    }
+
+    postFlipBleack(){
+        const message = {
+            type: 'flipBleack',
+        };
+        WsRoomSeka.socket.send(JSON.stringify(message));
+    }
     getRedyTake(){
         const message = {
             type: 'redyTake',
@@ -126,9 +139,33 @@ export class WsRoomSeka{
         WsRoomSeka.socket.send(JSON.stringify(message));
     }
 
+    postLookCards(){
+        const message = {
+            type: 'lookCards',
+            id: this.userId,
+        };
+        WsRoomSeka.socket.send(JSON.stringify(message));
+    }
+
     postPlay(){
         const message = {
             type: 'play',
+        };
+        WsRoomSeka.socket.send(JSON.stringify(message));
+
+    }
+
+
+    restart(){
+        const message = {
+            type: 'restart',
+        };
+        WsRoomSeka.socket.send(JSON.stringify(message));
+    }
+    postUpBet(bet){
+        const message = {
+            type: 'upBet',
+            bet: bet
         };
         WsRoomSeka.socket.send(JSON.stringify(message));
 

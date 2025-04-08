@@ -34,7 +34,8 @@ export class DurackGame {
                 this.mapCards.removeCardInDeck(key)
             
                 card.castomMuving = false
-
+                card.sprite.interactive = false
+                DraggableItem.activeCard = null
                 console.log('size');
                 console.log(this.mapCards.getDeck().size);
                 console.log(this.mapCards.getDeck());

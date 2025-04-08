@@ -21,7 +21,7 @@ export class DraggableItem {
         this.castomMuving = true
         this.atackMove = true
         this.def
-
+        this.animated = false
         this.sprite.anchor.set(0.5);
         this.sprite.scale.set(0.5);
         this.sprite.position.x = 300;
@@ -35,26 +35,25 @@ export class DraggableItem {
         this.sprite.on('pointermove', this.onDragStart.bind(this));
         this.app.stage.on('pointermove', this.onDragMove.bind(this));
         this.sprite.on('pointerup', this.onDragEnd.bind(this));
-        this.sprite.on('pointerupoutside', this.onDragEnd.bind(this));
+        this.sprite.on('pointerout', this.onDragEnd.bind(this));
             
 
-        this.addEventListeners();
+        // this.addEventListeners();
     }
 
-    addEventListeners() {
+    // addEventListeners() {
         // Анімація вибору карт
-        this.sprite.on('pointerover', () => {
-            this.direction = 1;
-        });
-        this.sprite.on('pointerout', () => {
-            this.direction = -1;
-        });
-    }
+    // }
     // нова механіка переміщення
     onDragStart(event) {
-        const screenHeight = this.app.screen.height - 170;
-        if (event.data.global.y < screenHeight && !this.dragging && this.sprite.interactive) {
-            if (DraggableItem.activeCard) return;
+        // const screenHeight = this.app.screen.height - 170;
+        if (DraggableItem.activeCard) return;
+            // console.log('DraggableItem.activeCard');
+        const screenHeight = this.app.screen.height - 150;
+        const position = event.data.global;
+
+        if (position.y < screenHeight) {
+    
             this.dragging = true;
             DraggableItem.activeCard = this;
             console.log(this.sprite.name);
@@ -62,11 +61,7 @@ export class DraggableItem {
             this.offsetX = this.sprite.x - event.data.global.x;
             this.offsetY = this.sprite.y - event.data.global.y;
             this.sprite.scale.set(0.52);
-            // const position = event.data.global;
-            // this.sprite.x = position.x + this.offsetX;
-            // this.sprite.y = position.y + this.offsetY;
-
-        }
+        }        
     }
     
     onDragMove(event) {
@@ -83,24 +78,34 @@ export class DraggableItem {
     }
         
     onDragEnd() {
-        if (this.dragging) {
+        if (this.dragging) {  
             this.dragging = false;
             this.sprite.scale.set(0.5);
             DraggableItem.activeCard = null
         }
     }
         // Анімація
-    animate() {
-        const screenHeight = this.app.screen.height - 100;
-    
-        if (this.direction === 1 && this.sprite.y > screenHeight - 100) {
-            this.sprite.y -= 6;
+        animate() {
+            const screenHeight = this.app.screen.height - 130;
+        
+            if (this.direction === 1 && this.sprite.y > screenHeight - 120 && !this.animated) {
+                this.animated = true;
+                console.log(this.sprite.y > screenHeight - 120);
+                
+                gsap.to(this.sprite, {
+                    y: this.firstPositionY - 70,
+                    duration: 0.3
+                });
+            } 
+            else if (this.direction === -1 && this.animated) {
+                this.animated = false;
+                gsap.to(this.sprite, {
+                    y: this.firstPositionY,
+                    duration: 0.3
+                });
+            }
         }
-        else if (this.direction === -1 && this.sprite.y < screenHeight && this.sprite.y > screenHeight - 120) {
-            this.sprite.y += 6;
-        }
-    }
-    
+            
 
     // Функція додавання нової текстури на карту
     setTexture(texture) {

@@ -11,9 +11,51 @@ export class DeckDurack{
         this.deckGame = new Map()
         this.goat
         this.app = app
+        this.lastSelected = null;
+
+        this.app.stage.on('pointermove', this.moveDeck.bind(this));
     }
 
-    addPlayerCards(cardsPromise = []) {
+    addAnmationCards(){
+        this.deck.forEach((card, name) => {
+            card.sprite.on('pointerover', () => {
+                card.direction = 1;
+                this.cardSelectionAnimation(name)
+            });
+            card.sprite.on('pointerdown', () => {
+                card.direction = 1;
+                this.cardSelectionAnimation(name)
+            });
+            card.sprite.on('pointerout', () => {
+                card.direction = -1;
+                this.resetCardPositions(card)
+            });
+            card.sprite.on('pointerup', () => {
+                card.direction = -1;
+                this.resetCardPositions(card)
+            });
+    
+        })
+    }
+
+    moveDeck(){
+        if (DraggableItem.activeCard) {
+            const screenHeight = this.app.screen.height - 130;
+            const activeCard = DraggableItem.activeCard;
+        
+            const y = activeCard.sprite.y;
+        
+            if (y < screenHeight - 115) {
+                this.deck.forEach((card, name) => {
+                    if (card === activeCard) {
+                        this.addPlayerCards([], name);
+                        console.log('up');
+                    }
+                });
+            }
+        }
+    }
+    addPlayerCards(cardsPromise = [], remove = false) {
         let cards, scale;
         if (this.deck) {
             const deckArry = Array.from(this.deck.keys());
@@ -21,6 +63,13 @@ export class DeckDurack{
         } else {
             cards = cardsPromise;
         }
+
+        if (remove){
+            cards = cards.filter(item => item != remove);            
+        }
+
+        console.log(cards);
+
 
         if ( cards.length > 9 ){
             scale = 0.4
@@ -71,7 +120,53 @@ export class DeckDurack{
             }
         }
     }
+
+    cardSelectionAnimation(cardName) {
+        if (this.lastSelected === cardName) return;
+        this.lastSelected = cardName;
+    
+        // Створюємо масив з ключів (імен карт)
+        const keys = Array.from(this.deck.keys());
+        const selectedIndex = keys.indexOf(cardName);
+    
+        keys.forEach((name, index) => {
+            const card = this.deck.get(name);
+            if (!card?.sprite) return;
+    
+            if (name === cardName) return; // пропускаємо саму карту
+    
+            const distance = Math.abs(index - selectedIndex);
+            const direction = index < selectedIndex ? -1 : 1;
+    
+            const offset = 20 + (3 - distance) * 10; // ближчі карти зміщуються більше
+            gsap.to(card.sprite, {
+                x: card.firstPositionX + direction * offset,
+                duration: 0.3
+            });
+        });
+    }
+    
+    resetCardPositions(card) {
+        const screenHeight = this.app.screen.height - 130;
+        if (card.sprite.y < screenHeight) {
+
+            this.lastSelected = null;
+            console.log('reset');
             
+        
+            for (const [name, card] of this.deck.entries()) {
+                if (!card?.sprite) continue;
+        
+                gsap.to(card.sprite, {
+                    x: card.firstPositionX,
+                    y: card.firstPositionY,
+                    duration: 0.3
+                });
+            }
+    
+        }
+    }
+
     addDeckToGame() {
         for (let i = 0; i < this.cardImages.length; i++) {
             const name = this.cardImages[i];
